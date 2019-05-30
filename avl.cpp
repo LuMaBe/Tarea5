@@ -73,16 +73,22 @@ static avl_t a2avl_rec(info_t *infos, int inf, int sup) { // PNG
 
 static nat maximo(nat n1, nat n2) { return (n1 >= n2) ? n1: n2; };
 
+static void rotacion_simple_izquierda(avl_t &avl){
+  avl_t *aux = avl->der;
+  avl_t *aux2 = aux->izq; // Porque lo que está a la derecha de [avl->der] no lo voy a modificar, no me
+  aux->izq = avl;        // interesa trabajar con esos nodos.
+  avl->der  = aux2; // Como los datos de los nodos de aux2 se encontraban en la rama izquierda de avl, entonces
+  avl->altura = maximo(altura(avl->izq), altura(avl->der)) + 1; // significa que según el criterio de orden
+  aux->altura = maximo(altura(aux->izq), altura(aux->der) + 1; // definido, ahora esos nodos tienen que ser
+};                                                            // unidos a la rama derecha de avl.
+
 static void rotacion_simple_derecha(avl_t &avl){
   avl_t *aux = avl->izq;
-  avl->izq = aux->der;
+  avl_t *aux2 = aux->der; // Idem. a comentario de rotacion_simple_izquierda.
   aux->der = avl;
-  avl = aux;
-};
-
-static void rotacion_simple_izquierda(avl_t &avl){
-  avl_t *aux = avl;
-
+  avl->izq  = aux2; // Análogo a [rotacion_simple_izquierda] pero en vez de unirlos a la rama derecha, unirlos
+  avl->altura = maximo(altura(avl->izq), altura(avl->der)) + 1; // a la rama izquierda.
+  aux->altura = maximo(altura(aux->izq), altura(aux->der) + 1;
 };
 
 static bool signo(int a, int b){ // Compara los signos y devuelve true si son de igual signo.
