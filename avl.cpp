@@ -33,6 +33,37 @@ struct avl_ultimo { // PNG
 
 /* FUNCIONES AUXILIARES */
 
+static avl_t insertar_aux(avl_t avl){
+    int comp1 = ((altura_de_avl(avl->der)) - (altura_de_avl(avl->izq)));
+  if ( comp1 > 1 || comp1 < 1 ){
+    
+    if( avl->der != NULL ){
+      int comp2 = ((altura_de_avl(avl->der->der)) - (altura_de_avl(avl->der->izq)));
+    }else
+      int comp2 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));
+    
+  if ((comp1 <= -2) && (!signo(comp1,comp2))){
+    rotacion_simple_izquierda(avl->izq);
+    rotacion_simple_derecha(avl);
+  }else{
+    if ((comp1 <= -2)){
+      rotacion_simple_derecha(avl);
+    }
+  }
+  
+  if ((comp1 >= 2)  && (!signo(comp1,comp2)) )){
+    rotacion_simple_derecha(avl->der);
+    rotacion_simple_izquierda(avl);
+  }else{
+    if (comp1 >= 2){
+      rotacion_simple_izquierda(avl);
+    }
+  }
+  }
+  return avl;
+}
+
+
 static avl_ultimo avl_min_rec(nat h, nat primero) {
   avl_ultimo res;
   if (h == 0) {
@@ -139,45 +170,31 @@ bool es_vacio_avl(avl_t avl){
   El tiempo de ejecución es O(log n), donde `n' es la cantidad de elementos
   de `avl'.
 */
+
 void insertar_en_avl(info_t i, avl_t &avl){
-  int alturaizq = 0;
-  int alturader = 0;
+  //assert (es_vacio_avl(buscar_en_avl(numero_info(i),avl)) && (numero_info(i) != INT_MAX));
+  avl->cantidad ++;
+
   if (es_vacio_avl(avl)) {
-    avl_t *nuevo = new rep_avl;
-    nuevo->dato = i;
-    nuevo->izq = NULL;
-    nuevo->der = NULL;
+		rep_avl *nuevo = new rep_avl;
+  	nuevo->dato = i;
     avl = nuevo;
-  } else { // Si el avl dado NO es vacío..
-    if ((numero_info(i)) < (numero_info(avl->dato))) {
-      alturaizq ++;
+		nuevo->izq = NULL;
+		nuevo->der = NULL;
+	}else {
+		if ( (numero_info(i)) < (numero_info(avl->dato)) ){
       insertar_en_avl(i, avl->izq);
-    } else {
-      alturader++;
+    }else{
       insertar_en_avl(i, avl->der);
     }
-  }
-  avl->altura = (maximo(alturader, alturaizq) + 1);
-  avl->cantidad++;
-  int comp1 = ((altura_de_avl(avl->der)) - (altura_de_avl(avl->izq)));
-  int comp2 = ((altura_de_avl(avl->der->der)) - (altura_de_avl(avl->der->izq))); // ERROR
-  if ((comp1 < -1) && (!signo(comp1, comp2))) {
-    rotacion_simple_derecha(avl);
-    rotacion_simple_izquierda(avl);
-  } else {
-    if ((comp1 < -1)) {
-      rotacion_simple_derecha(avl);
-    }
-  }
-  if ((comp1 > 1)  && (!signo(comp1,comp2))) {
-    rotacion_simple_izquierda(avl);
-    rotacion_simple_derecha(avl);
-  } else {
-    if (comp1 > 1) {
-      rotacion_simple_izquierda(avl);
-    }
-  }
+	}
+  avl = insertar_aux(avl);
+
 };
+
+  
+
+
 
 /*
   Devuelve el subárbol que tiene como raíz al nodo con el elemento cuyo dato
