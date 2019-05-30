@@ -55,15 +55,26 @@ static avl_t insertar_aux(avl_t avl) {
 };
 
 
+static nat Fibonacci(nat h) { // Para [avl_min_rec]
+  if (h == 0)
+    return 0;
+  else
+    return Fibonacci(1 + Fibonacci(n-1) + Fibonacci(n-2));
+};
+
 static avl_ultimo avl_min_rec(nat h, nat primero) {
   avl_ultimo res;
   if (h == 0) {
     res.avl = NULL;
     res.ultimo = primero - 1;
   } else if (h == 1) {
-    // COMPLETAR
+    info_t info = crear_info(1, NULL);
+    insertar_en_avl(info, res.avl);
+    res.ultimo = primero;
   } else {
-    // COMPLETAR
+
+    res.avl->izq = avl_min_rec(h-1, primero);
+    res.avl->der = avl_min_rec(h-2, primero);
   }
   return res;
 };
