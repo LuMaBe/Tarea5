@@ -70,16 +70,14 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
   } else if (h == 1) {
     char *frase = new char[1];
     frase[0] = \0;
-    info_t info = crear_info(1, frase);
+    info_t info = crear_info(primero, frase);
     insertar_en_avl(info, res.avl);
     res.ultimo = primero;
   } else {
-
-    res.avl->izq = avl_min_rec(h-1, primero);
-    res.avl->der = avl_min_rec(h-2, primero);
     res.avl->izq = (avl_min_rec(h-1, primero))->avl;
     res.avl->der = (avl_min_rec(h-2, primero))->avl;
-    
+    primero ++;
+
     
   }
   return res;
