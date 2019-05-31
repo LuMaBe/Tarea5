@@ -59,6 +59,8 @@ static nat Raiz_min_avl(nat altura) { // Para [avl_min_rec]
         return 0;
       else if (altura == 1)
         return 1;
+      else if (altura == 2)
+        return 2
       else
         return (Raiz_min_avl(altura - 1) + Raiz_min_avl(altura - 2));
 };
