@@ -54,12 +54,26 @@ static avl_t insertar_aux(avl_t avl) {
   return avl;
 };
 
+static nat Raiz_min_avl(nat altura) { // Para [avl_min_rec]
+      if (altura == 0)
+        return 0;
+      else if (altura == 1)
+        return 1;
+      else
+        return (Raiz_min_avl(altura - 1) + Raiz_min_avl(altura - 2));
+};
 
 static nat Fibonacci(nat h) { // Para [avl_min_rec]
-  if (h == 0)
+  if (h < 0)
     return 0;
   else
-    return Fibonacci(1 + Fibonacci(n-1) + Fibonacci(n-2));
+    return (1 + Fibonacci(n-1) + Fibonacci(n-2));
+};
+
+static info_t Info_sin_frase(nat primero) {
+  char *frase = new char[1];
+  frase[0] = \0;
+  info_t info = crear_info(primero, frase);
 };
 
 static avl_ultimo avl_min_rec(nat h, nat primero) {
@@ -68,14 +82,12 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
     res.avl = NULL;
     res.ultimo = primero - 1;
   } else if (h == 1) {
-    char *frase = new char[1];
-    frase[0] = \0;
-    info_t info = crear_info(primero, frase);
-    insertar_en_avl(info, res.avl);
+    insertar_en_avl(Info_sin_frase(primero), res.avl);
     res.ultimo = primero;
   } else {
-    res.avl->izq = (avl_min_rec(h-1, primero + 1))->avl;
-    res.avl->der = (avl_min_rec(h-2, primero + 2))->avl;
+    res.avl = insertar_en_avl(Info_sin_frase(Raiz_min_avl(h)), res.avl);
+    res.avl->izq = (avl_min_rec(h-1, Fibonacci(h-1)))->avl;
+    res.avl->der = (avl_min_rec(h-2, Fibonacci(h-2)))->avl;
   }
   return res;
 };
@@ -297,7 +309,7 @@ avl_t arreglo_a_avl(info_t *infos, nat n){
   Ver ejemplos en la letra y en el caso 408.
  */
 avl_t avl_min(nat h) {
-  avl_ultimo res = avl_min_rec(h, 1);
+  avl_ultimo res = avl_min_rec(h, Fibonacci(h));
   return res.avl;
 };
 
