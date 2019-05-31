@@ -64,8 +64,10 @@ static nat Raiz_min_avl(nat altura) { // Para [avl_min_rec]
 };
 
 static nat Fibonacci(nat h) { // Para [avl_min_rec]
-  if (h < 0)
+  if (h == 0)
     return 0;
+  else if (h == 1)
+    return 1;
   else
     return (1 + Fibonacci(n-1) + Fibonacci(n-2));
 };
