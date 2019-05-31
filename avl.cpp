@@ -39,7 +39,7 @@ static avl_t insertar_aux(avl_t avl) {
     if( avl->der != NULL )
       int comp2 = ((altura_de_avl(avl->der->der)) - (altura_de_avl(avl->der->izq)));
     else
-      int comp2 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));  
+      int comp2 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));
   if ((comp1 <= -2) && (!signo(comp1,comp2))) {
     rotacion_simple_izquierda(avl->izq);
     rotacion_simple_derecha(avl);
@@ -74,11 +74,11 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
     insertar_en_avl(info, res.avl);
     res.ultimo = primero;
   } else {
-    res.avl->izq = (avl_min_rec(h-1, primero))->avl;
-    res.avl->der = (avl_min_rec(h-2, primero))->avl;
+    res.avl->izq = (avl_min_rec(h-1, primero + 1))->avl;
+    res.avl->der = (avl_min_rec(h-2, primero + 2))->avl;
     primero ++;
 
-    
+
   }
   return res;
 };
