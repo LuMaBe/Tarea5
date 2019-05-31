@@ -76,9 +76,6 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
   } else {
     res.avl->izq = (avl_min_rec(h-1, primero + 1))->avl;
     res.avl->der = (avl_min_rec(h-2, primero + 2))->avl;
-    primero ++;
-
-
   }
   return res;
 };
