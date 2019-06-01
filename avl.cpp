@@ -95,10 +95,12 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
     nuevo->cantidad = 1;
   } else {
     avl_t nuevo = new rep_avl;
-    res.avl->izq = (avl_min_rec(h-1, Fibonacci(h-1)))->avl;
-    res.avl->der = (avl_min_rec(h-2, primero + 1))->avl;
-    res.ultimo = Fibonacci(h);
-    res.avl->dato = Info_sin_frase();
+    res.avl->izq = (avl_min_rec(h-1, ))->avl;
+    res.avl->der = (avl_min_rec(h-2, ))->avl;
+    res.ultimo = ;
+    res.avl->altura = h;
+    res.avl->cantidad = Fibonacci(h);
+    res.avl->dato = Info_sin_frase(res.ultimo + 1);
   }
   return res;
 };
