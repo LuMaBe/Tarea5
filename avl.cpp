@@ -74,20 +74,21 @@ static nat Fibonacci(nat h) { // Para [avl_min_rec]
     return (1 + Fibonacci(n-1) + Fibonacci(n-2));
 };
 
-static info_t Info_sin_frase(nat primero) {
+static info_t Info_sin_frase(nat DatoNumerico) {
   char *frase = new char[1];
   frase[0] = \0;
-  info_t info = crear_info(primero, frase);
+  info_t info = crear_info(DatoNumerico, frase);
+  return info;
 };
 
 static avl_ultimo avl_min_rec(nat h, nat primero) {
   avl_ultimo res;
   if (h == 0) {
     res.avl = NULL;
-    res.ultimo = primero - 1;
+    res.ultimo = (primero - 1);
   } else if (h == 1) {
     avl_t nuevo = new rep_avl;
-    nuevo->dato = primero;
+    nuevo->dato = Info_sin_frase(primero);
     nuevo->izq = NULL;
     nuevo->der = NULL;
     nuevo->altura = 1;
@@ -95,8 +96,9 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
   } else {
     avl_t nuevo = new rep_avl;
     res.avl->izq = (avl_min_rec(h-1, Fibonacci(h-1)))->avl;
-    res.ultimo = Fibonacci(h);
     res.avl->der = (avl_min_rec(h-2, primero + 1))->avl;
+    res.ultimo = Fibonacci(h);
+    res.avl->dato = Info_sin_frase();
   }
   return res;
 };
