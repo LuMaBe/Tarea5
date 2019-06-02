@@ -98,18 +98,14 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
   } else {
     avl_t nuevo = new rep_avl;
     nuevo->izq = (avl_min_rec(h-1, primero))->avl;
-    
-    nuevo->der = (avl_min_rec(h-2, res.ultimo + 2))->avl;
+    avl_ultimo aux_izq = nuevo->izq;
+    nuevo->dato = aux_izq.ultimo + 1;
+    nuevo->der = (avl_min_rec(h-2, aux_izq.ultimo + 2))->avl;
     if (nuevo->der != NULL) {
       avl_ultimo aux_der = nuevo->der;
       res.ultimo = aux_der.ultimo;
-      nuevo->dato = res.ultimo - 1;
-    } else if (nuevo->izq != NULL) {
-      avl_ultimo aux_izq = nuevo->izq;
+    } else if (nuevo->izq != NULL)
       res.ultimo = aux_izq.ultimo + 1;
-      nuevo->dato = res.ultimo;
-    } else
-      res.ultimo = nuevo;
     nuevo->altura = h;
     nuevo->cantidad = Fibonacci(h);
     res.avl = nuevo;
