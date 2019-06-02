@@ -35,17 +35,17 @@ struct avl_ultimo { // PNG
 
 static avl_t insertar_aux(avl_t avl) {
     int comp1 = ((altura_de_avl(avl->der)) - (altura_de_avl(avl->izq)));
-  if ( comp1 > 1 || comp1 < 1 ) {
-    if( avl->der != NULL )
+  if (comp1 > 1 || comp1 < 1) {
+    if (avl->der != NULL)
       int comp2 = ((altura_de_avl(avl->der->der)) - (altura_de_avl(avl->der->izq)));
     else
       int comp2 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));
-  if ((comp1 <= -2) && (!signo(comp1,comp2))) {
+  if ((comp1 < -1) && (!signo(comp1, comp2))) {
     rotacion_simple_izquierda(avl->izq);
     rotacion_simple_derecha(avl);
-  } else if ((comp1 <= -2))
+  } else if ((comp1 < -1))
       rotacion_simple_derecha(avl);
-  if ((comp1 >= 2)  && (!signo(comp1,comp2)) )) {
+  if ((comp1 > 1)  && (!signo(comp1, comp2)))) {
     rotacion_simple_derecha(avl->der);
     rotacion_simple_izquierda(avl);
   } else if (comp1 >= 2)
@@ -63,7 +63,7 @@ static nat Fibonacci(nat h) { // Para [avl_min_rec]
     return (1 + Fibonacci(n-1) + Fibonacci(n-2));
 };
 
-static info_t Info_sin_frase(nat DatoNumerico) {
+static info_t Info_sin_frase(nat DatoNumerico) { // Para [avl_min_rec]
   char *frase = new char[1];
   frase[0] = \0;
   info_t info = crear_info(DatoNumerico, frase);
@@ -102,11 +102,11 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
   return res;
 };
 
-static info_t *en_orden_rec(info_t *res, nat &tope, avl_t avl){ // PNG
-  if (!es_vacio_avl(avl)){
+static info_t *en_orden_rec(info_t *res, nat &tope, avl_t avl) {
+  if (!es_vacio_avl(avl)) {
     res = en_orden_rec(res, tope, izq_avl(avl));
     res[tope] = raiz_avl(avl);
-    tope ++;
+    tope++;
     res = en_orden_rec(res, tope, der_avl(avl));
   }
   return res;
@@ -130,7 +130,7 @@ static avl_t a2avl_rec(info_t *infos, int inf, int sup) { // PNG
 
 static nat maximo(nat n1, nat n2) { return (n1 >= n2) ? n1: n2; };
 
-static void rotacion_simple_izquierda(avl_t &avl){
+static void rotacion_simple_izquierda(avl_t &avl) {
   avl_t *aux = avl->der;
   avl_t *aux2 = aux->izq; // Porque lo que está a la derecha de [avl->der] no lo voy a modificar, no me
   aux->izq = avl;        // interesa trabajar con esos nodos.
@@ -139,7 +139,7 @@ static void rotacion_simple_izquierda(avl_t &avl){
   aux->altura = maximo(altura(aux->izq), altura(aux->der) + 1; // definido, ahora esos nodos tienen que ser
 };                                                            // unidos a la rama derecha de avl.
 
-static void rotacion_simple_derecha(avl_t &avl){
+static void rotacion_simple_derecha(avl_t &avl) {
   avl_t *aux = avl->izq;
   avl_t *aux2 = aux->der; // Idem. a comentario de rotacion_simple_izquierda.
   aux->der = avl;
@@ -148,13 +148,12 @@ static void rotacion_simple_derecha(avl_t &avl){
   aux->altura = maximo(altura(aux->izq), altura(aux->der) + 1;
 };
 
-static bool signo(int a, int b){ // Compara los signos y devuelve true si son de igual signo.
+static bool signo(int a, int b) { // Compara los signos y devuelve true si son de igual signo.
   bool res=false;
-  if ((a>=0) && (b>=0)){
+  if ((a>=0) && (b>=0))
     res = true;
-  }else if((a<0) && (b<0)){
+  else if ((a<0) && (b<0))
     res = true;
-  }
   return res;
 };
 
@@ -170,14 +169,13 @@ avl_t crear_avl() {
   res->cantidad = 0;
   res = NULL;
   return res;
-
 };
 
 /*
   Devuelve `true' si y sólo si `avl' es vacío (no tiene elementos).
   El tiempo de ejecución es O(1).
  */
-bool es_vacio_avl(avl_t avl){
+bool es_vacio_avl(avl_t avl) {
   return (avl == NULL);
 };
 
@@ -214,7 +212,7 @@ void insertar_en_avl(info_t i, avl_t &avl){
  */
 avl_t buscar_en_avl(int clave, avl_t avl){
   avl_t res;
-  if (!es_vacio_avl(avl)){
+  if (!es_vacio_avl(avl)) {
     int comp = numero_info(avl->dato);
 		if (clave < comp)
 			res = buscar_en_avl(clave, avl->izq);
@@ -222,9 +220,8 @@ avl_t buscar_en_avl(int clave, avl_t avl){
 			res = buscar_en_avl(clave, avl->der);
 		else
 			res = avl;
-	}else{
-    res =crear_avl();
-  }
+	} else
+    res = crear_avl();
   return res;
 };
 
@@ -258,7 +255,7 @@ nat cantidad_en_avl(avl_t avl) {
   if (!es_vacio_avl(avl))
     cant = avl->cantidad;
   return cantidad;
-}
+};
 
 /*
   Devuelve la altura de  `avl'.
