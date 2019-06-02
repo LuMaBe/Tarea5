@@ -122,7 +122,8 @@ static avl_t a2avl_rec(info_t *infos, int inf, int sup) { // PNG
     res->dato = infos[medio];
     res->izq = a2avl_rec(infos, inf, medio - 1);
     res->der = a2avl_rec(infos, medio + 1, sup);
-    // AJUSTAR res->altura y res->cantidad;
+    res->altura = medio + 1;
+    res->cantidad = (res->izq->cantidad) + (res->der->cantidad) + 1;
   }
   return res;
 };
@@ -153,14 +154,6 @@ static bool signo(int a, int b){ // Compara los signos y devuelve true si son de
     res = true;
   }else if((a<0) && (b<0)){
     res = true;
-  }
-  return res;
-};
-
-static avl_t arreglo_a_avl_aux(info_t *infos, nat n, avl_t res){
-  int i;
-  for ((i = 0); (i = n-1); i++){
-    insertar_en_avl(infos[i],res);
   }
   return res;
 };
@@ -303,9 +296,7 @@ info_t *en_orden_avl(avl_t avl){ // PNG
   El tiempo de ejecución es O(n).
  */
 avl_t arreglo_a_avl(info_t *infos, nat n){
-  avl_t res = crear_avl();
-  arreglo_a_avl_aux(infos, n, res);
-  return res;
+  return a2avl_rec(infos, 0, n - 1);
 };
 
 /*
