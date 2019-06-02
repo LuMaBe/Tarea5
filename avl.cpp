@@ -190,7 +190,6 @@ bool es_vacio_avl(avl_t avl){
 */
 
 void insertar_en_avl(info_t i, avl_t &avl){
-  //assert (es_vacio_avl(buscar_en_avl(numero_info(i),avl)) && (numero_info(i) != INT_MAX));
   avl->cantidad ++;
   if (es_vacio_avl(avl)) {
       rep_avl *nuevo = new rep_avl;
@@ -254,7 +253,12 @@ avl_t der_avl(avl_t avl){ return avl->der; };
   Devuelve la cantidad de elementos en `avl'.
   El tiempo de ejecución es O(1).
  */
-nat cantidad_en_avl(avl_t avl){ return avl->cantidad; };
+nat cantidad_en_avl(avl_t avl) {
+  nat cant = 0;
+  if (!es_vacio_avl(avl))
+    cant = avl->cantidad;
+  return cantidad;
+}
 
 /*
   Devuelve la altura de  `avl'.
