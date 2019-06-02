@@ -54,17 +54,6 @@ static avl_t insertar_aux(avl_t avl) {
   return avl;
 };
 
-static nat Raiz_min_avl(nat altura) { // Para [avl_min_rec]
-      if (altura == 0)
-        return 0;
-      else if (altura == 1)
-        return 1;
-      else if (altura == 2)
-        return 2
-      else
-        return (Raiz_min_avl(altura - 1) + Raiz_min_avl(altura - 2));
-};
-
 static nat Fibonacci(nat h) { // Para [avl_min_rec]
   if (h == 0)
     return 0;
