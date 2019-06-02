@@ -93,14 +93,29 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
     nuevo->der = NULL;
     nuevo->altura = 1;
     nuevo->cantidad = 1;
+    res.avl = nuevo;
+    res.ultimo = primero;
   } else {
     avl_t nuevo = new rep_avl;
-    res.avl->izq = (avl_min_rec(h-1, ))->avl;
-    res.avl->der = (avl_min_rec(h-2, ))->avl;
-    res.ultimo = ;
-    res.avl->altura = h;
-    res.avl->cantidad = Fibonacci(h);
-    res.avl->dato = Info_sin_frase(res.ultimo + 1);
+    nuevo->izq = (avl_min_rec(h-1, primero))->avl;
+    nuevo->der = (avl_min_rec(h-2, primero + (h-1)))->avl;
+    avl_ultimo auxizq; // AUX para ultimoizq..
+    auxizq.avl = nuevo->izq;
+    if (nuevo->izq == NULL)
+      auxizq.ultimo = 0;
+    else
+      auxizq.ultimo = nuevo->izq->dato;
+    avl_ultimo auxder; // AUX para ultimoder..
+    auxder.avl = nuevo->der;
+    if (nuevo->der == NULL)
+      auxder.ultimo = 0;
+    else
+      auxder.ultimo =  nuevo->izq->dato;
+    res.ultimo = maximo(auxizq.ultimo , auxder.ultimo);
+    nuevo->altura = h;
+    nuevo->cantidad = Fibonacci(h);
+    nuevo->dato = Info_sin_frase(res.ultimo + 1);
+    res.avl = nuevo;
   }
   return res;
 };
