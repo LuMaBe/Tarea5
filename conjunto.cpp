@@ -116,7 +116,7 @@ conjunto_t union_conjunto(conjunto_t c1, conjunto_t c2) {
       }
     reiniciar_iterador(iter1);
     reiniciar_iterador(iter2);
-    // Reincio ambos iteradores
+    // Reincio ambos iteradores.
     liberar_iterador(iter1);
     liberar_iterador(iter2);
     // Libero la memoria de ambos iteradores para que no haya perdida de memoria.
@@ -135,7 +135,43 @@ conjunto_t union_conjunto(conjunto_t c1, conjunto_t c2) {
   El conjunto_t devuelto no comparte memoria ni con `c1' no con `c2'.
  */
 conjunto_t diferencia(conjunto_t c1, conjunto_t c2) {
-  return 0;
+  conjunto_t res = crear_conjunto();
+  if (es_vacio_conjunto(c1) && es_vacio_conjunto(c2))
+    return res;
+  else {
+    iterador_t iter1 = iterador_conjunto(c1);
+    iterador_t iter2 = iterador_conjunto(c2);
+    // iter1 e iter2 NO comparten memoria con c1 y c2 respectivamente.. LIBERAR MEMORIA AL FINAL!!
+    iter1->actual = iter1->inicio;
+    iter2->actual = iter2->inicio,
+    while ((iter1->actual != NULL) && (iter2->actual != NULL)) {
+      if (numero_info(iter2->actual->dato) > numero_info(iter1->actual->dato)) {
+        insertar_en_avl(copia_info(iter1->actual->dato), res->arbol);
+        iter1->actual = iter1->actual->siguiente;
+        // Si el dato_num actual en 'iter2' es > al actual en 'iter1', entonces sé que el elemento no va a
+      // estar en 'c2', sería IMPOSIBLE. Por lo tanto, lo inserto y avanzo al siguiente en 'iter1'.
+      } else if (numero_info(iter2->actual->dato) == numero_info(iter1->actual->dato)) {
+        iter1->actual = iter1->actual->siguiente;
+        iter2->actual = iter2->actual->siguiente;
+        // Si el dato_num actual en 'iter2' == al actual en 'iter1', entonces avanzo al siguiente en tanto en
+      // 'iter1' como en 'iter2'.
+      }
+    }
+    if ((iter1->actual != NULL) && (iter2->actual == NULL)) // Si salí del 'while' porque llegué al final de 'iter2'
+      while (iter1->actual != NULL) { // entonces significa que el resto de los elementos que faltaron revisar de
+        insertar_en_avl(copia_info(iter1->actual->dato), res->arbol); // 'iter1', seguro no van a estar en 'iter2',
+        iter1->actual = iter2->actual->siguiente; // por lo tanto agrego todos los restantes de 'iter1'.
+      }
+    reiniciar_iterador(iter1);
+    reiniciar_iterador(iter2);
+    // Reincio ambos iteradores.
+    liberar_iterador(iter1);
+    liberar_iterador(iter2);
+    // Libero la memoria de ambos iteradores para que no haya perdida de memoria.
+  }
+  return res;
+  // Si c1 y c2 eran vacíos no entra al if y directamente devuelve un conjunto vacío, sino
+  // me devuelve el conjunto esperado.
 };
 
 /*
@@ -154,6 +190,7 @@ void liberar_conjunto(conjunto_t &c) {
  */
 bool pertenece_conjunto(info_t info, conjunto_t s) {
   return (pertence_a_avl(info, s->arbol));
+  // Función auxiliar que busca si 'info' == a algún elemento del conjunto 's'.
 };
 
 /*
@@ -175,7 +212,11 @@ bool es_vacio_conjunto(conjunto_t c) {
   El tiempo de ejecución es O(n).
  */
 conjunto_t arreglo_a_conjunto(info_t *infos, nat n) {
-  return 0;
+  conjunto_t c = crear_conjunto;
+  avl_t res = arreglo_a_avl(info_t *infos, nat n);
+  // Creo un conjunto 'c' y devuelvo a 'res' con el avl que formé a partir del arreglo '*infos'.
+  c->arbol = res;
+  // Por último, simplemente le "paso" al conjunto 'c' el avl 'res' que obtuve.
 };
 
 /* PNG
