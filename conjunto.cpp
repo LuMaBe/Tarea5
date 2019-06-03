@@ -22,6 +22,29 @@ struct rep_conjunto { // PNG
 
 typedef struct rep_conjunto *conjunto_t;
 
+/* FUNCIONES AUXILIARES */
+
+bool pertence_a_avl(info_t info, avl_t avl){ // Función auxiliar para [pertenece_conjunto] .
+  bool res;
+  if (!es_vacio_avl(avl)) {
+    int comp = numero_info(avl->dato);
+		if (numero_info(info) < comp)
+			res = buscar_en_avl(clave, avl->izq);
+		else if (numero_info(info) > comp)
+			res = buscar_en_avl(clave, avl->der);
+		else {
+      if (strcmp(frase_info(avl->dato), frase_info(info)) == 0) // Sabemos que si entra a este 'else', entonces
+			  res = true; // significa que coincidieron con sus datos numéricos, pero ¿Tienen misma frase (string)...?
+      else
+        res = false; // No tienen misma frase.
+    }
+	} else
+    res = false;
+  return res;
+};
+
+/* FUNCIONES AUXILIARES */
+
 /* Constructoras */
 
 /*
@@ -119,7 +142,10 @@ conjunto_t diferencia(conjunto_t c1, conjunto_t c2) {
   Libera la memoria asignada a `c' y la de todos sus elementos.
   El tiempo de ejecución es O(n), siendo `n' la cantidad de elementos de `c'.
  */
-void liberar_conjunto(conjunto_t &c) {};
+void liberar_conjunto(conjunto_t &c) {
+  liberar_avl(c->arbol);
+  // Liberar el conjunto 'c' es equivalente a liberar el campo 'arbol'.
+};
 
 /*
   Devuelve `true' si y sólo si `info' es un elemento de `c'.
@@ -127,7 +153,7 @@ void liberar_conjunto(conjunto_t &c) {};
   elementos de `c'.
  */
 bool pertenece_conjunto(info_t info, conjunto_t s) {
-  return 0;
+  return (pertence_a_avl(info, s->arbol));
 };
 
 /*
