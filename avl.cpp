@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 /* LIBRERIAS */
 
 // Representación de `avl_t'.
@@ -326,6 +327,42 @@ avl_t avl_min(nat h) {
  */
 void imprimir_avl(avl_t avl){
 
+  if(!es_vacio_avl(avl)){
+        pila_t p = crear_pila((cantidad_en_avl(avl)) + (altura_de_avl(avl)));
+        cola_avls c1 = crear_cola_avls();
+        crear_cola_avls c2 = crear_cola_avls();
+        encolar(avl, c1);
+        
+        while(!es_vacio_cola_avls(c1)){ 
+            apilar(numero_info(frente(c1)->dato), p);
+                
+            if(frente(c1)->der != NULL)
+                encolar(frente(c1)->der, c2);
+            if(frente(c1) != NULL)
+                encolar(frente(c1)->izq, c2);
+            
+            desencolar(c1); 
+            
+            if(es_vacio_cola_avls(c1)){
+                c1 = c2;
+                if(!es_vacio_cola_avls(c2))
+                    liberar_cola_avls(c2);
+                
+                apilar(INT_MAX, p); 
+            }
+        }
+         
+        
+        while(!es_vacia_pila(p)){
+            if(cima(p) == INT_MAX){
+                printf("\n");
+            }else{
+                printf("%d", " " , cima(p));
+            }
+            desapilar(p);
+        }  
+    }
+    printf("\n");
 };
 
 /*
