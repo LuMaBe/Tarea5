@@ -39,7 +39,14 @@ conjunto_t crear_conjunto() {
   El tiempo de ejecución es O(1).
  */
 conjunto_t singleton(info_t i) {
-  return 0;
+  avl_t res = new rep_avl;
+  res->dato = i;
+  res->altura = 1;
+  res->cantidad = 1;
+  res->izq = NULL;
+  res->der = NULL;
+  conjunto_t c = crear_conjunto();
+  c->arbol = res;
 };
 
 /*
@@ -52,7 +59,35 @@ conjunto_t singleton(info_t i) {
   El conjunto_t devuelto no comparte memoria ni con `c1' no con `c2'.
  */
 conjunto_t union_conjunto(conjunto_t c1, conjunto_t c2) {
-  return 0;
+  conjunto_t res = crear_conjunto();
+  if (es_vacio_conjunto(c1) && es_vacio_conjunto(c2))
+    return res;
+  else {
+    iterador_t iter1 = iterador_conjunto(c1);
+    iterador_t iter2 = iterador_conjunto(c2);
+    iter1->actual = iter1->inicio;
+    iter2->actual = iter2->inicio,
+    while ((iter1->actual != NULL) && (iter2->actual != NULL)) {
+      insertar_en_avl(copia_info(iter1->actual->dato), res->arbol);
+      if (numero_info(iter2->actual->dato) < numero_info(iter1->actual->dato)) {
+        insertar_en_avl(copia_info(iter2->actual->dato), res->arbol);
+        iter2->actual = iter2->actual->siguiente;
+      } else if (numero_info(iter2->actual->dato) == numero_info(iter1->actual->dato))
+        iter2->actual = iter2->actual->siguiente;
+      iter1->actual = iter1->actual->siguiente;
+    }
+    if ((iter1->actual == NULL) && (iter2->actual != NULL))
+      while (iter2->actual != NULL) {
+        insertar_en_avl(copia_info(iter2->actual->dato), res->arbol);
+        iter2->actual = iter2->actual->siguiente;
+      }
+    else if ((iter1->actual != NULL) && (iter2->actual == NULL))
+      while (iter1->actual != NULL) {
+        insertar_en_avl(copia_info(iter1->actual->dato), res->arbol);
+        iter1->actual = iter2->actual->siguiente;
+      }
+  }
+  return res;
 };
 
 /*
@@ -111,7 +146,7 @@ conjunto_t arreglo_a_conjunto(info_t *infos, nat n) {
   El tiempo de ejecución es O(n), siendo `n' es la cantidad de elementos de `c'.
   El iterador_t resultado NO comparte memoria con `c'.
  */
-iterador_t iterador_conjunto(conjunto_t c) { // PNG
+iterador_t iterador_conjunto(conjunto_t c) {
   iterador_t res = crear_iterador();
   info_t *infos = en_orden_avl(c->arbol);
   for (nat i = 0; i < cantidad_en_avl(c->arbol); i++)
