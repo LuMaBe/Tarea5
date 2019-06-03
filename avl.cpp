@@ -89,7 +89,7 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
     avl_t nuevo = new rep_avl;
     nuevo->izq = (avl_min_rec(h-1, primero))->avl;
     avl_ultimo aux_izq = nuevo->izq;
-    nuevo->dato = aux_izq.ultimo + 1;
+    nuevo->dato = Info_sin_frase(aux_izq.ultimo + 1);
     nuevo->der = (avl_min_rec(h-2, aux_izq.ultimo + 2))->avl;
     if (nuevo->der != NULL) {
       avl_ultimo aux_der = nuevo->der;
