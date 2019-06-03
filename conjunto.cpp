@@ -45,8 +45,10 @@ conjunto_t singleton(info_t i) {
   res->cantidad = 1;
   res->izq = NULL;
   res->der = NULL;
+  // Le asigno al avl 'res' todos los datos.
   conjunto_t c = crear_conjunto();
   c->arbol = res;
+  // Por último agrego 'res' al conjunto.
 };
 
 /*
@@ -65,10 +67,13 @@ conjunto_t union_conjunto(conjunto_t c1, conjunto_t c2) {
   else {
     iterador_t iter1 = iterador_conjunto(c1);
     iterador_t iter2 = iterador_conjunto(c2);
+    // iter1 e iter2 NO comparten memoria con c1 y c2 respectivamente.. LIBERAR MEMORIA AL FINAL!!
     iter1->actual = iter1->inicio;
     iter2->actual = iter2->inicio,
     while ((iter1->actual != NULL) && (iter2->actual != NULL)) {
       insertar_en_avl(copia_info(iter1->actual->dato), res->arbol);
+      // Inserto el dato con haciendo una copia_info en res->arbol, para
+      // después cuando libere los iteradores no se me pierda la memoria.
       if (numero_info(iter2->actual->dato) < numero_info(iter1->actual->dato)) {
         insertar_en_avl(copia_info(iter2->actual->dato), res->arbol);
         iter2->actual = iter2->actual->siguiente;
@@ -76,18 +81,26 @@ conjunto_t union_conjunto(conjunto_t c1, conjunto_t c2) {
         iter2->actual = iter2->actual->siguiente;
       iter1->actual = iter1->actual->siguiente;
     }
-    if ((iter1->actual == NULL) && (iter2->actual != NULL))
-      while (iter2->actual != NULL) {
+    if ((iter1->actual == NULL) && (iter2->actual != NULL)) // Si salió del while porque 'iter1' llegó a NULL
+      while (iter2->actual != NULL) { // continúo insertando en el conjunto los elementos de iter2 hasta terminar.
         insertar_en_avl(copia_info(iter2->actual->dato), res->arbol);
         iter2->actual = iter2->actual->siguiente;
       }
-    else if ((iter1->actual != NULL) && (iter2->actual == NULL))
-      while (iter1->actual != NULL) {
+    else if ((iter1->actual != NULL) && (iter2->actual == NULL)) // Lo mismo pero si 'iter2' llegó a NULL antes
+      while (iter1->actual != NULL) { // que 'iter1'.
         insertar_en_avl(copia_info(iter1->actual->dato), res->arbol);
         iter1->actual = iter2->actual->siguiente;
       }
+    reiniciar_iterador(iter1);
+    reiniciar_iterador(iter2);
+    // Reincio ambos iteradores
+    liberar_iterador(iter1);
+    liberar_iterador(iter2);
+    // Libero la memoria de ambos iteradores para que no haya perdida de memoria.
   }
   return res;
+  // Si c1 y c2 eran vacíos no entra al if y directamente devuelve un conjunto vacío, sino
+  // me devuelve el conjunto esperado.
 };
 
 /*
