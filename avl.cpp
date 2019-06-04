@@ -70,21 +70,25 @@ static void rotacion_simple_derecha(avl_t &avl) {
 static avl_t insertar_aux(avl_t avl) {
     int comp1 = (altura_de_avl(avl->der)) - (altura_de_avl(avl->izq));
   if ((comp1 > 1) || (comp1 < (-1))) {
-    int comp2;
+    int comp2, comp3;
+
     if (avl->der != NULL)
       comp2 = (altura_de_avl(avl->der->der)) - (altura_de_avl(avl->der->izq));
-    else
-      comp2 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));
-  if ((comp1 < (-1)) && (!signo(comp1, comp2))) {
+    if(avl->izq != NULL)
+      comp3 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));
+
+  if ((comp1 < (-1)) && (!signo(comp1, comp3))) {
     rotacion_simple_izquierda(avl->izq);
     rotacion_simple_derecha(avl);
-  } else if ((comp1 < (-1)))
+  } else if (comp1 < (-1)) 
       rotacion_simple_derecha(avl);
+
   if ((comp1 > 1)  && (!signo(comp1, comp2))) {
     rotacion_simple_derecha(avl->der);
     rotacion_simple_izquierda(avl);
-  } else if (comp1 >= 2)
+  } else if (comp1 > 1)
       rotacion_simple_izquierda(avl);
+
   } else {
     avl->altura = maximo(altura_de_avl(avl->izq), altura_de_avl(avl->der)) + 1;
     avl->cantidad = cantidad_en_avl(avl->izq) + cantidad_en_avl(avl->der) + 1;
