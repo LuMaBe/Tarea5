@@ -36,58 +36,83 @@ struct avl_ultimo { // PNG
 
 static nat maximo(nat n1, nat n2) { return (n1 >= n2) ? n1: n2; };
 
-static bool signo(int a, int b) { // Compara los signos y devuelve true si son de igual signo.
+/*static bool signo(int a, int b) { // Compara los signos y devuelve true si son de igual signo.
   bool res;
   if (((a >= 0) && (b >= 0)) || ((a < 0) && (b < 0)))
     res = true;
   else
     res = false;
   return res;
-};
+};*/
 
 static void rotacion_simple_izquierda(avl_t &avl) {
   rep_avl *aux = avl->der;
-  rep_avl *aux2 = aux->izq; // Porque lo que está a la derecha de [avl->der] no lo voy a modificar, no me
-  aux->izq = avl;        // interesa trabajar con esos nodos.
-  avl->der = aux2; // Como los datos de los nodos de aux2 se encontraban en la rama izquierda de avl, entonces
-  avl->altura = maximo(altura_de_avl(avl->izq), altura_de_avl(avl->der)) + 1; // significa que según el criterio de orden
-  avl = aux;                                                                 // definido, ahora esos nodos tienen que ser
-  avl->altura = maximo(altura_de_avl(aux->izq), altura_de_avl(aux->der)) + 1;
-  avl->cantidad = cantidad_en_avl(aux->izq) + cantidad_en_avl(aux->der) + 1;
+  avl->der = aux->izq;
+  aux->izq = avl;
+  avl->altura = maximo(altura_de_avl(avl->izq), altura_de_avl(avl->der)) + 1; // a la rama izquierda.
+  avl->cantidad = cantidad_en_avl(avl->izq) + cantidad_en_avl(avl->der) + 1;
+  aux->altura = maximo(altura_de_avl(aux->izq), altura_de_avl(aux->der)) + 1;
+  aux->cantidad = cantidad_en_avl(aux->izq) + cantidad_en_avl(aux->der) + 1;
+  avl = aux;
 };
 
 static void rotacion_simple_derecha(avl_t &avl) {
   rep_avl *aux = avl->izq;
-  rep_avl *aux2 = aux->der; // Idem. a comentario de rotacion_simple_izquierda.
+  avl->izq = aux->der;
   aux->der = avl;
-  avl->izq  = aux2; // Análogo a [rotacion_simple_izquierda] pero en vez de unirlos a la rama derecha, unirlos
   avl->altura = maximo(altura_de_avl(avl->izq), altura_de_avl(avl->der)) + 1; // a la rama izquierda.
+  avl->cantidad = cantidad_en_avl(avl->izq) + cantidad_en_avl(avl->der) + 1;
+  aux->altura = maximo(altura_de_avl(aux->izq), altura_de_avl(aux->der)) + 1;
+  aux->cantidad = cantidad_en_avl(aux->izq) + cantidad_en_avl(aux->der) + 1;
   avl = aux;
-  avl->altura = maximo(altura_de_avl(aux->izq), altura_de_avl(aux->der)) + 1;
-  avl->cantidad = cantidad_en_avl(aux->izq) + cantidad_en_avl(aux->der) + 1;
 };
 
-static avl_t insertar_aux(avl_t avl) {
-    int comp1 = (altura_de_avl(avl->der)) - (altura_de_avl(avl->izq));
-  if ((comp1 > 1) || (comp1 < (-1))) {
-    int comp2;
-    if (avl->der != NULL)
-      comp2 = (altura_de_avl(avl->der->der)) - (altura_de_avl(avl->der->izq));
-    else
-      comp2 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));
-  if ((comp1 < (-1)) && (!signo(comp1, comp2))) {
-    rotacion_simple_izquierda(avl->izq);
+/*if ((comp1 > 1) || (comp1 < (-1))) {
+  int comp2;
+  if (avl->der != NULL)
+    comp2 = (altura_de_avl(avl->der->der)) - (altura_de_avl(avl->der->izq));
+  else
+    comp2 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));
+if ((comp1 < (-1)) && (!signo(comp1, comp2))) {
+  rotacion_simple_izquierda(avl->izq);
+  rotacion_simple_derecha(avl);
+} else if ((comp1 < (-1)))
     rotacion_simple_derecha(avl);
-  } else if ((comp1 < (-1)))
-      rotacion_simple_derecha(avl);
-  if ((comp1 > 1)  && (!signo(comp1, comp2))) {
-    rotacion_simple_derecha(avl->der);
+if ((comp1 > 1)  && (!signo(comp1, comp2))) {
+  rotacion_simple_derecha(avl->der);
+  rotacion_simple_izquierda(avl);
+} else if (comp1 >= 2)
     rotacion_simple_izquierda(avl);
-  } else if (comp1 >= 2)
+    */
+
+static int FactorEquilibrio (avl_t avl) {
+  int factor = 0;
+  if (!es_vacio_avl(avl))
+      factor = altura_de_avl(avl->der) - altura_de_avl(avl->izq);
+  return factor;
+};
+
+static avl_t insertar_aux(info_t i, avl_t avl) {
+  int factor = FactorEquilibrio(avl);
+  if (factor < (-1) || factor > 1) {
+    if (factor < (-1) && (numero_info(i) < numero_info(avl->izq->dato))) {
+    // Hay que balancear el lado izquierdo.
+      rotacion_simple_derecha(avl);
+    }
+    if (factor > 1 && (numero_info(i) > numero_info(avl->der->dato))) {
+    // Hay que balancear el lado derecho.
       rotacion_simple_izquierda(avl);
+    }
+    if (factor < (-1) && (numero_info(i) > numero_info(avl->izq->dato))) {
+      rotacion_simple_izquierda(avl->izq);
+      rotacion_simple_derecha(avl);
+    }
+    if (factor > 1 && (numero_info(i) < numero_info(avl->der->dato))) {
+      rotacion_simple_derecha(avl->der);
+      rotacion_simple_izquierda(avl);
+    }
   } else {
     avl->altura = maximo(altura_de_avl(avl->izq), altura_de_avl(avl->der)) + 1;
-    avl->cantidad = cantidad_en_avl(avl->izq) + cantidad_en_avl(avl->der) + 1;
   }
   return avl;
 };
@@ -204,7 +229,7 @@ void insertar_en_avl(info_t i, avl_t &avl) {
       insertar_en_avl(i, avl->izq);
     else
       insertar_en_avl(i, avl->der);
-  avl = insertar_aux(avl);
+  avl = insertar_aux(i, avl);
   }
 };
 
@@ -333,29 +358,30 @@ void imprimir_avl(avl_t avl){
   if(!es_vacio_avl(avl)) {
     pila_t p = crear_pila((cantidad_en_avl(avl)) + (altura_de_avl(avl)));
     cola_avls_t c1 = crear_cola_avls();
-    cola_avls_t c2 = crear_cola_avls();
     encolar(avl, c1);
+    cola_avls_t c2 = crear_cola_avls();
     while(!es_vacia_cola_avls(c1)) {
-      apilar(numero_info(frente(c1)->dato), p);
-      if(frente(c1)->der != NULL)
-        encolar(frente(c1)->der, c2);
-      if(frente(c1) != NULL)
-        encolar(frente(c1)->izq, c2);
-      desencolar(c1);
-      if(es_vacia_cola_avls(c1)) {
-        c1 = c2;
-        if(!es_vacia_cola_avls(c2))
-          liberar_cola_avls(c2);
-        apilar(INT_MAX, p);
+      while (!es_vacia_cola_avls(c1)) {  //este while es para encolar el siguiente nivel y apilar el actual
+        if (frente(c1)->der != NULL)
+          encolar(frente(c1)->der, c2);
+        if (frente(c1)->izq != NULL)
+          encolar(frente(c1)->izq, c2);
+        apilar(numero_info(frente(c1)->dato), p);
+        desencolar(c1);
       }
+      c1 = c2;
+      apilar(INT_MAX, p);
     }
+    liberar_cola_avls(c1);
+    liberar_cola_avls(c2);
     while(!es_vacia_pila(p)) {
       if(cima(p) == INT_MAX)
         printf("\n");
       else
         printf("%s%d", " " , cima(p));
       desapilar(p);
-      }
+    }
+    liberar_pila(p);
   }
   printf("\n");
 };
@@ -374,3 +400,4 @@ void liberar_avl(avl_t &avl){
 		avl = NULL;
 	}
 };
+
