@@ -4,6 +4,7 @@
 #include "../include/avl.h"
 #include "../include/info.h"
 #include "../include/iterador.h"
+#include "../include/cola_avls.h"
 /* DIRECTORIOS */
 
 /* BIBLIOTECAS */
@@ -40,12 +41,12 @@ cola_avls_t crear_cola_avls() {
 void encolar(avl_t b, cola_avls_t &c) {
   nodoQueue *nuevo = new nodoQueue;
   nuevo->avl = b;
-  if (c->cantidad == 0) {
+  if (es_vacia_cola_avls(c)) {
     nuevo->sig = NULL;
     c->cabezal = nuevo;
     c->cola = nuevo;
   } else {
-    c->cola->sig = nuevo;
+    nuevo->sig = c->cola;
     c->cola = nuevo;
   }
   c->cantidad++;
@@ -61,17 +62,32 @@ void desencolar(cola_avls_t &c) {
     if (c->cantidad == 1) // Si la cola tiene un solo elemento, entonces cabezal==cola.
       c->cabezal = c->cola = NULL;
     else { // Si c->cantidad > 1, entonces el cabezal pasa a apuntar al siguiente elemento.
-      c->cabezal = c->cabezal->sig;
+      nodoQueue *aux = c->cola;
+      while (aux->sig != c->cabezal)
+        aux = aux->sig;
+      nodoQueue *aux2 = c->cabezal;
+      delete(aux2);
+      aux->sig = NULL;
+      c->cabezal = aux;
     }
     c->cantidad--;
   }
 };
 
 /* Libera la memoria asignada a `c', pero NO la de sus elementos. */
-void liberar_cola_avls(cola_avls_t &c) { delete(c); };
+void liberar_cola_avls(cola_avls_t &c) {
+  if (!es_vacia_cola_avls(c)) {
+    nodoQueue *aux;
+    aux = c->cola;
+    while (aux->sig != c->cabezal)
+      delete(aux);
+    delete(aux);
+  }
+  delete(c);
+};
 
 /* Devuelve `true' si y sólo si `c' es vacía (no tiene elementos). */
-bool es_vacia_cola_avls(cola_avls_t c) { return (c->cantidad == 0); };
+bool es_vacia_cola_avls(cola_avls_t c) { return ((c->cabezal == NULL) && (c->cola == NULL)); };
 
 /*
   Devuelve el elemento que está en el frente de `c'.
@@ -83,3 +99,4 @@ avl_t frente(cola_avls_t c) {
     res =  c->cabezal->avl;
   return res;
 };
+
