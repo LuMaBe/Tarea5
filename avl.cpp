@@ -9,15 +9,15 @@
 /* BIBLIOTECAS */
 
 /* LIBRERIAS */
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 /* LIBRERIAS */
 
 // Representación de `avl_t'.
 // Se debe definir en avl.cpp.
-struct rep_avl { // PNG
+struct rep_avl {
   info_t dato;
 	nat altura;
   nat cantidad;
@@ -34,23 +34,60 @@ struct avl_ultimo { // PNG
 
 /* FUNCIONES AUXILIARES */
 
+static nat maximo(nat n1, nat n2) { return (n1 >= n2) ? n1: n2; };
+
+static bool signo(int a, int b) { // Compara los signos y devuelve true si son de igual signo.
+  bool res;
+  if (((a >= 0) && (b >= 0)) || ((a < 0) && (b < 0)))
+    res = true;
+  else
+    res = false;
+  return res;
+};
+
+static void rotacion_simple_izquierda(avl_t &avl) {
+  rep_avl *aux = avl->der;
+  rep_avl *aux2 = aux->izq; // Porque lo que está a la derecha de [avl->der] no lo voy a modificar, no me
+  aux->izq = avl;        // interesa trabajar con esos nodos.
+  avl->der = aux2; // Como los datos de los nodos de aux2 se encontraban en la rama izquierda de avl, entonces
+  avl->altura = maximo(altura_de_avl(avl->izq), altura_de_avl(avl->der)) + 1; // significa que según el criterio de orden
+  avl = aux;                                                                 // definido, ahora esos nodos tienen que ser
+  avl->altura = maximo(altura_de_avl(aux->izq), altura_de_avl(aux->der)) + 1;
+  avl->cantidad = cantidad_en_avl(aux->izq) + cantidad_en_avl(aux->der) + 1;
+};
+
+static void rotacion_simple_derecha(avl_t &avl) {
+  rep_avl *aux = avl->izq;
+  rep_avl *aux2 = aux->der; // Idem. a comentario de rotacion_simple_izquierda.
+  aux->der = avl;
+  avl->izq  = aux2; // Análogo a [rotacion_simple_izquierda] pero en vez de unirlos a la rama derecha, unirlos
+  avl->altura = maximo(altura_de_avl(avl->izq), altura_de_avl(avl->der)) + 1; // a la rama izquierda.
+  avl = aux;
+  avl->altura = maximo(altura_de_avl(aux->izq), altura_de_avl(aux->der)) + 1;
+  avl->cantidad = cantidad_en_avl(aux->izq) + cantidad_en_avl(aux->der) + 1;
+};
+
 static avl_t insertar_aux(avl_t avl) {
-    int comp1 = ((altura_de_avl(avl->der)) - (altura_de_avl(avl->izq)));
-  if (comp1 > 1 || comp1 < 1) {
+    int comp1 = (altura_de_avl(avl->der)) - (altura_de_avl(avl->izq));
+  if ((comp1 > 1) || (comp1 < (-1))) {
+    int comp2;
     if (avl->der != NULL)
-      int comp2 = ((altura_de_avl(avl->der->der)) - (altura_de_avl(avl->der->izq)));
+      comp2 = (altura_de_avl(avl->der->der)) - (altura_de_avl(avl->der->izq));
     else
-      int comp2 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));
-  if ((comp1 < -1) && (!signo(comp1, comp2))) {
+      comp2 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));
+  if ((comp1 < (-1)) && (!signo(comp1, comp2))) {
     rotacion_simple_izquierda(avl->izq);
     rotacion_simple_derecha(avl);
-  } else if ((comp1 < -1))
+  } else if ((comp1 < (-1)))
       rotacion_simple_derecha(avl);
-  if ((comp1 > 1)  && (!signo(comp1, comp2)))) {
+  if ((comp1 > 1)  && (!signo(comp1, comp2))) {
     rotacion_simple_derecha(avl->der);
     rotacion_simple_izquierda(avl);
   } else if (comp1 >= 2)
       rotacion_simple_izquierda(avl);
+  } else {
+    avl->altura = maximo(altura_de_avl(avl->izq), altura_de_avl(avl->der)) + 1;
+    avl->cantidad = cantidad_en_avl(avl->izq) + cantidad_en_avl(avl->der) + 1;
   }
   return avl;
 };
@@ -61,12 +98,12 @@ static nat Fibonacci(nat h) { // Para [avl_min_rec]
   else if (h == 1)
     return 1;
   else
-    return (1 + Fibonacci(n-1) + Fibonacci(n-2));
+    return (1 + Fibonacci(h-1) + Fibonacci(h-2));
 };
 
 static info_t Info_sin_frase(nat DatoNumerico) { // Para [avl_min_rec]
-  char *frase = new char[1];
-  frase[0] = \0;
+  char *frase = new char[0];
+  frase[0] = '\0';
   info_t info = crear_info(DatoNumerico, frase);
   return info;
 };
@@ -77,7 +114,7 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
     res.avl = NULL;
     res.ultimo = (primero - 1);
   } else if (h == 1) {
-    avl_t nuevo = new rep_avl;
+    rep_avl *nuevo = new rep_avl;
     nuevo->dato = Info_sin_frase(primero);
     nuevo->izq = NULL;
     nuevo->der = NULL;
@@ -86,19 +123,16 @@ static avl_ultimo avl_min_rec(nat h, nat primero) {
     res.avl = nuevo;
     res.ultimo = primero;
   } else {
-    avl_t nuevo = new rep_avl;
-    nuevo->izq = (avl_min_rec(h-1, primero))->avl;
-    avl_ultimo aux_izq = nuevo->izq;
-    nuevo->dato = Info_sin_frase(aux_izq.ultimo + 1);
-    nuevo->der = (avl_min_rec(h-2, aux_izq.ultimo + 2))->avl;
-    if (nuevo->der != NULL) {
-      avl_ultimo aux_der = nuevo->der;
-      res.ultimo = aux_der.ultimo;
-    } else if (nuevo->izq != NULL)
-      res.ultimo = aux_izq.ultimo + 1;
-    nuevo->altura = h;
-    nuevo->cantidad = Fibonacci(h);
-    res.avl = nuevo;
+    avl_ultimo nuevo_izq = avl_min_rec(h-1, primero);
+    rep_avl *avl_res = new rep_avl;
+    avl_res->dato = Info_sin_frase(nuevo_izq.ultimo + 1);
+    avl_res->izq = nuevo_izq.avl;
+    avl_res->altura = h;
+    avl_res->cantidad = Fibonacci(h);
+    avl_ultimo nuevo_der = avl_min_rec(h-2, nuevo_izq.ultimo + 2);
+    avl_res->der = nuevo_der.avl;
+    res.avl = avl_res;
+    res.ultimo = nuevo_der.ultimo;
   }
   return res;
 };
@@ -129,35 +163,6 @@ static avl_t a2avl_rec(info_t *infos, int inf, int sup) { // PNG
   return res;
 };
 
-static nat maximo(nat n1, nat n2) { return (n1 >= n2) ? n1: n2; };
-
-static void rotacion_simple_izquierda(avl_t &avl) {
-  avl_t *aux = avl->der;
-  avl_t *aux2 = aux->izq; // Porque lo que está a la derecha de [avl->der] no lo voy a modificar, no me
-  aux->izq = avl;        // interesa trabajar con esos nodos.
-  avl->der  = aux2; // Como los datos de los nodos de aux2 se encontraban en la rama izquierda de avl, entonces
-  avl->altura = maximo(altura(avl->izq), altura(avl->der)) + 1; // significa que según el criterio de orden
-  aux->altura = maximo(altura(aux->izq), altura(aux->der) + 1; // definido, ahora esos nodos tienen que ser
-};                                                            // unidos a la rama derecha de avl.
-
-static void rotacion_simple_derecha(avl_t &avl) {
-  avl_t *aux = avl->izq;
-  avl_t *aux2 = aux->der; // Idem. a comentario de rotacion_simple_izquierda.
-  aux->der = avl;
-  avl->izq  = aux2; // Análogo a [rotacion_simple_izquierda] pero en vez de unirlos a la rama derecha, unirlos
-  avl->altura = maximo(altura(avl->izq), altura(avl->der)) + 1; // a la rama izquierda.
-  aux->altura = maximo(altura(aux->izq), altura(aux->der) + 1;
-};
-
-static bool signo(int a, int b) { // Compara los signos y devuelve true si son de igual signo.
-  bool res=false;
-  if ((a>=0) && (b>=0))
-    res = true;
-  else if ((a<0) && (b<0))
-    res = true;
-  return res;
-};
-
 /* FUNCIONES AUXILIARES */
 
 /*
@@ -165,11 +170,7 @@ static bool signo(int a, int b) { // Compara los signos y devuelve true si son d
   El tiempo de ejecución es O(1).
  */
 avl_t crear_avl() {
-  avl_t res = new rep_avl;
-  res->altura = 0;
-  res->cantidad = 0;
-  res = NULL;
-  return res;
+  return NULL;
 };
 
 /*
@@ -188,20 +189,23 @@ bool es_vacio_avl(avl_t avl) {
   de `avl'.
 */
 
-void insertar_en_avl(info_t i, avl_t &avl){
-  avl->cantidad ++;
+void insertar_en_avl(info_t i, avl_t &avl) {
   if (es_vacio_avl(avl)) {
       rep_avl *nuevo = new rep_avl;
       nuevo->dato = i;
-      avl = nuevo;
+      nuevo->altura = 1;
+      nuevo->cantidad = 1;
       nuevo->izq = NULL;
       nuevo->der = NULL;
-  } else if ( (numero_info(i)) < (numero_info(avl->dato)) )
+      avl = nuevo;
+  } else {
+    avl->cantidad ++;
+    if ((numero_info(i)) < (numero_info(avl->dato)))
       insertar_en_avl(i, avl->izq);
-  else
+    else
       insertar_en_avl(i, avl->der);
-  }
   avl = insertar_aux(avl);
+  }
 };
 
 /*
@@ -255,7 +259,7 @@ nat cantidad_en_avl(avl_t avl) {
   nat cant = 0;
   if (!es_vacio_avl(avl))
     cant = avl->cantidad;
-  return cantidad;
+  return cant;
 };
 
 /*
@@ -326,43 +330,34 @@ avl_t avl_min(nat h) {
   Ver ejemplos en la letra y en el caso 404.
  */
 void imprimir_avl(avl_t avl){
-
-  if(!es_vacio_avl(avl)){
-        pila_t p = crear_pila((cantidad_en_avl(avl)) + (altura_de_avl(avl)));
-        cola_avls c1 = crear_cola_avls();
-        crear_cola_avls c2 = crear_cola_avls();
-        encolar(avl, c1);
-        
-        while(!es_vacio_cola_avls(c1)){ 
-            apilar(numero_info(frente(c1)->dato), p);
-                
-            if(frente(c1)->der != NULL)
-                encolar(frente(c1)->der, c2);
-            if(frente(c1) != NULL)
-                encolar(frente(c1)->izq, c2);
-            
-            desencolar(c1); 
-            
-            if(es_vacio_cola_avls(c1)){
-                c1 = c2;
-                if(!es_vacio_cola_avls(c2))
-                    liberar_cola_avls(c2);
-                
-                apilar(INT_MAX, p); 
-            }
-        }
-         
-        
-        while(!es_vacia_pila(p)){
-            if(cima(p) == INT_MAX){
-                printf("\n");
-            }else{
-                printf("%d", " " , cima(p));
-            }
-            desapilar(p);
-        }  
+  if(!es_vacio_avl(avl)) {
+    pila_t p = crear_pila((cantidad_en_avl(avl)) + (altura_de_avl(avl)));
+    cola_avls_t c1 = crear_cola_avls();
+    cola_avls_t c2 = crear_cola_avls();
+    encolar(avl, c1);
+    while(!es_vacia_cola_avls(c1)) {
+      apilar(numero_info(frente(c1)->dato), p);
+      if(frente(c1)->der != NULL)
+        encolar(frente(c1)->der, c2);
+      if(frente(c1) != NULL)
+        encolar(frente(c1)->izq, c2);
+      desencolar(c1);
+      if(es_vacia_cola_avls(c1)) {
+        c1 = c2;
+        if(!es_vacia_cola_avls(c2))
+          liberar_cola_avls(c2);
+        apilar(INT_MAX, p);
+      }
     }
-    printf("\n");
+    while(!es_vacia_pila(p)) {
+      if(cima(p) == INT_MAX)
+        printf("\n");
+      else
+        printf("%s%d", " " , cima(p));
+      desapilar(p);
+      }
+  }
+  printf("\n");
 };
 
 /*
