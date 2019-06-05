@@ -59,13 +59,16 @@ void encolar(avl_t b, cola_avls_t &c) {
  */
 void desencolar(cola_avls_t &c) {
   if (c->cantidad != 0) {
-    if (c->cantidad == 1) // Si la cola tiene un solo elemento, entonces cabezal==cola.
+    if (c->cantidad == 1) {// Si la cola tiene un solo elemento, entonces cabezal==cola.
+      nodoQueue *aux;
+      aux = c->cabezal;
+      delete(aux);
       c->cabezal = c->cola = NULL;
-    else { // Si c->cantidad > 1, entonces el cabezal pasa a apuntar al siguiente elemento.
+    } else { // Si c->cantidad > 1, entonces el cabezal pasa a apuntar al siguiente elemento.
       nodoQueue *aux = c->cola;
       while (aux->sig != c->cabezal)
         aux = aux->sig;
-      nodoQueue *aux2 = c->cabezal;
+      nodoQueue *aux2 = aux->sig;
       delete(aux2);
       aux->sig = NULL;
       c->cabezal = aux;
@@ -79,8 +82,11 @@ void liberar_cola_avls(cola_avls_t &c) {
   if (!es_vacia_cola_avls(c)) {
     nodoQueue *aux;
     aux = c->cola;
-    while (aux->sig != c->cabezal)
+    while (aux == c->cabezal) {
+      nodoQueue *aux2 = aux->sig;
       delete(aux);
+      aux = aux2;
+    }
     delete(aux);
   }
   delete(c);
@@ -99,4 +105,3 @@ avl_t frente(cola_avls_t c) {
     res =  c->cabezal->avl;
   return res;
 };
-
