@@ -126,7 +126,7 @@ static nat Fibonacci(nat h) { // Para [avl_min_rec]
 };
 
 static info_t Info_sin_frase(nat DatoNumerico) { // Para [avl_min_rec]
-  char *frase = new char[0];
+  char *frase = new char[1];
   frase[0] = '\0';
   info_t info = crear_info(DatoNumerico, frase);
   return info;
@@ -340,7 +340,7 @@ avl_t arreglo_a_avl(info_t *infos, nat n){
   Ver ejemplos en la letra y en el caso 408.
  */
 avl_t avl_min(nat h) {
-  avl_ultimo res = avl_min_rec(h, Fibonacci(h));
+  avl_ultimo res = avl_min_rec(h, 1);
   return res.avl;
 };
 
@@ -355,35 +355,46 @@ avl_t avl_min(nat h) {
  */
 void imprimir_avl(avl_t avl){
   if(!es_vacio_avl(avl)) {
-    pila_t p = crear_pila((cantidad_en_avl(avl)) + (altura_de_avl(avl)));
+    pila_t p = crear_pila(cantidad_en_avl(avl) + altura_de_avl(avl) - 1);
+    // Creo una pila 'p' de tamaño = cant. total de nodos del avl + altura del avl - 1, -1 porque al final imprimo
+  // salto de línea al final de este 'if'.
     cola_avls_t c1 = crear_cola_avls();
+    // 'c1' va a almacenar los datos del "nivel actual".
     encolar(avl, c1);
     cola_avls_t c2 = crear_cola_avls();
+    // 'c2' va a almacenar los datos del "siguiente nivel".
     while(!es_vacia_cola_avls(c1)) {
-      while (!es_vacia_cola_avls(c1)) {  //este while es para encolar el siguiente nivel y apilar el actual
+    // Un 'while' para que se repitan las acciones HASTA que ya no queden más elementos por apilar en mi pila 'p'.
+      while (!es_vacia_cola_avls(c1)) {
         if (frente(c1)->der != NULL)
           encolar(frente(c1)->der, c2);
         if (frente(c1)->izq != NULL)
           encolar(frente(c1)->izq, c2);
         apilar(numero_info(frente(c1)->dato), p);
         desencolar(c1);
+        // Luego de apilar el número del frente de la "cola", lo saco de la misma, ya no lo necesito.
       }
-      liberar_cola_avls(c1);
-      c1 = c2;
-      apilar(INT_MAX, p);
+      if (es_vacia_cola_avls(c1) && !es_vacia_cola_avls(c2))
+        apilar(INT_MAX, p);
+      // Si tengo elementos que faltan imprimir en 'c2' (elems del siguiente nivel) entonces apilo 'INT_MAX'.
+      while (!es_vacia_cola_avls(c2)) {
+        // Paso todos los elementos de 'c2' a 'c1'.
+        encolar(frente(c2), c1);
+        desencolar(c2);
+      }
     }
-    //liberar_cola_avls(c1);
+    liberar_cola_avls(c1);
     liberar_cola_avls(c2);
     while(!es_vacia_pila(p)) {
       if(cima(p) == INT_MAX)
         printf("\n");
       else
-        printf("%s%d", " " , cima(p));
+        printf("%d%s", cima(p), " ");
       desapilar(p);
     }
+    printf("\n");
     liberar_pila(p);
   }
-  printf("\n");
 };
 
 /*
@@ -400,5 +411,3 @@ void liberar_avl(avl_t &avl){
 		avl = NULL;
 	}
 };
-
-
