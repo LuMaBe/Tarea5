@@ -95,19 +95,18 @@ static int FactorEquilibrio (avl_t avl) {
 static avl_t insertar_aux(info_t i, avl_t avl) {
   int factor = FactorEquilibrio(avl);
   if (factor < (-1) || factor > 1) {
+  // Si entra a este 'if', entonces es necesario hacer algún tipo de rotación.
     if (factor < (-1) && (numero_info(i) < numero_info(avl->izq->dato))) {
-    // Hay que balancear el lado izquierdo.
+    // Hay que balancear el lado izquierdo con solamente rotacion simple derecha.
       rotacion_simple_derecha(avl);
-    }
-    if (factor > 1 && (numero_info(i) > numero_info(avl->der->dato))) {
-    // Hay que balancear el lado derecho.
+    } else if (factor > 1 && (numero_info(i) > numero_info(avl->der->dato))) {
+    // Hay que balancear el lado derecho con solamente rotación simple izquierda.
       rotacion_simple_izquierda(avl);
-    }
-    if (factor < (-1) && (numero_info(i) > numero_info(avl->izq->dato))) {
+    } else if (factor < (-1) && (numero_info(i) > numero_info(avl->izq->dato))) {
+    //
       rotacion_simple_izquierda(avl->izq);
       rotacion_simple_derecha(avl);
-    }
-    if (factor > 1 && (numero_info(i) < numero_info(avl->der->dato))) {
+    } else if (factor > 1 && (numero_info(i) < numero_info(avl->der->dato))) {
       rotacion_simple_derecha(avl->der);
       rotacion_simple_izquierda(avl);
     }
@@ -369,10 +368,11 @@ void imprimir_avl(avl_t avl){
         apilar(numero_info(frente(c1)->dato), p);
         desencolar(c1);
       }
+      liberar_cola_avls(c1);
       c1 = c2;
       apilar(INT_MAX, p);
     }
-    liberar_cola_avls(c1);
+    //liberar_cola_avls(c1);
     liberar_cola_avls(c2);
     while(!es_vacia_pila(p)) {
       if(cima(p) == INT_MAX)
@@ -400,4 +400,5 @@ void liberar_avl(avl_t &avl){
 		avl = NULL;
 	}
 };
+
 
