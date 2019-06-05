@@ -1,14 +1,18 @@
 /* 5223744 - 4937759 */
 
-/* Directorios */
+ /* BIBLIOTECAS */
 #include "../include/info.h"
+#include "../include/avl.h"
+#include "../include/cola_avls.h"
 #include "../include/pila.h"
-/* Directorios */
+#include "../include/conjunto.h"
+/* BIBLIOTECAS */
 
-/* Bibliotecas */
+/* LIBRERIAS */
 #include <stdio.h>
 #include <stdlib.h>
-/* Bibliotecas */
+#include <string.h>
+/* LIBRERIAS */
 
 // Representación de `pila_t'.
 // Se debe definir en pila.cpp.
@@ -90,3 +94,4 @@ int cima(pila_t p) {
   int res = p->datoPila->dato;
   return res;
 };
+
