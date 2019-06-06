@@ -36,15 +36,6 @@ struct avl_ultimo { // PNG
 
 static nat maximo(nat n1, nat n2) { return (n1 >= n2) ? n1: n2; };
 
-/*static bool signo(int a, int b) { // Compara los signos y devuelve true si son de igual signo.
-  bool res;
-  if (((a >= 0) && (b >= 0)) || ((a < 0) && (b < 0)))
-    res = true;
-  else
-    res = false;
-  return res;
-};*/
-
 static void rotacion_simple_izquierda(avl_t &avl) {
   rep_avl *aux = avl->der;
   avl->der = aux->izq;
@@ -66,24 +57,6 @@ static void rotacion_simple_derecha(avl_t &avl) {
   aux->cantidad = cantidad_en_avl(aux->izq) + cantidad_en_avl(aux->der) + 1;
   avl = aux;
 };
-
-/*if ((comp1 > 1) || (comp1 < (-1))) {
-  int comp2;
-  if (avl->der != NULL)
-    comp2 = (altura_de_avl(avl->der->der)) - (altura_de_avl(avl->der->izq));
-  else
-    comp2 = ((altura_de_avl(avl->izq->der)) - (altura_de_avl(avl->izq->izq)));
-if ((comp1 < (-1)) && (!signo(comp1, comp2))) {
-  rotacion_simple_izquierda(avl->izq);
-  rotacion_simple_derecha(avl);
-} else if ((comp1 < (-1)))
-    rotacion_simple_derecha(avl);
-if ((comp1 > 1)  && (!signo(comp1, comp2))) {
-  rotacion_simple_derecha(avl->der);
-  rotacion_simple_izquierda(avl);
-} else if (comp1 >= 2)
-    rotacion_simple_izquierda(avl);
-    */
 
 static int FactorEquilibrio (avl_t avl) {
   int factor = 0;
@@ -171,7 +144,7 @@ static info_t *en_orden_rec(info_t *res, nat &tope, avl_t avl) {
   return res;
 };
 
-static avl_t a2avl_rec(info_t *infos, int inf, int sup) { // PNG
+static avl_t a2avl_rec(info_t *infos, int inf, int sup) {
   avl_t res;
   if (inf > sup)
     res = NULL;
@@ -181,8 +154,8 @@ static avl_t a2avl_rec(info_t *infos, int inf, int sup) { // PNG
     res->dato = infos[medio];
     res->izq = a2avl_rec(infos, inf, medio - 1);
     res->der = a2avl_rec(infos, medio + 1, sup);
-    res->altura = medio + 1;
-    res->cantidad = (res->izq->cantidad) + (res->der->cantidad) + 1;
+    res->altura = maximo(altura_de_avl(res->izq), altura_de_avl(res->der)) + 1;
+    res->cantidad = cantidad_en_avl(res->izq) + cantidad_en_avl(res->der) + 1;
   }
   return res;
 };
