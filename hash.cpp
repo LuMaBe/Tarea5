@@ -12,6 +12,7 @@
 /* BIBLIOTECAS */
 
 /* LIBRERIAS */
+#include <cstdlib>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,9 +22,9 @@
 // Representación de `hash_t'.
 // Se debe definir en hash.cpp.
 struct rep_hash {
-  int numero;
-  char *texto;
-  nat MaxAsociaciones;
+  nat capacidad;
+  cadena_t hash[Capacidad];
+  nat cantAsociaciones;
 };
 // Declaración del tipo `hash_t'.
 typedef rep_hash *hash_t;
@@ -32,14 +33,24 @@ typedef rep_hash *hash_t;
  Crea un hash_t de asociaciones numero->texto.
  Podrá haber hasta `tamanio' asociaciones.
  */
-hash_t crear_hash(nat tamanio);
+hash_t crear_hash(nat tamanio) {
+  rep_hash h = new hash_t;
+  h.capacidad = tamanio - 1;
+  h.cantAsociaciones = 0;
+  return h;
+};
 
 /*
   Inserta en `h' la asociación entre `clave' y `valor'.
   Precondición: !esta_lleno_hash(t) y !existe_asociacion(clave, h).
   El tiempo de ejecución es O(1).
  */
-void asociar_en_hash(int clave, char *valor, hash_t &h);
+void asociar_en_hash(int clave, char *valor, hash_t &h) {
+  nat pos = (abs(clave)%(h.capacidad)); // Posición en la que voy a almacenar la asociación.
+  if (es_vacia_cadena(h[pos])) {
+    
+  }
+};
 
 /*
   Sustituye en `h' el anterior valor asociado a `clave' por `valor'.
@@ -59,7 +70,18 @@ void eliminar_de_hash(int clave, hash_t &h);
 /*
   Libera la memoria asignada a `h' y todos sus elementos.
  */
-void liberar_hash(hash_t &h);
+void liberar_hash(hash_t &h) {
+  if (h.cantAsociaciones != 0)
+    pos = 0;
+    while ((pos <=  h.capacidad) && (h.cantAsociaciones != 0)) {
+      if (!es_vacia_cadena(h[pos]) {
+        liberar_cadena(h[pos]);
+        h.cantAsociaciones--; // Una asociación menos a borrar.
+      }
+      pos++;
+    }
+    delete(h);
+};
 
 /*
   Devuelve `true' si y sólo si en `h' hay una asociación entre `clave'
@@ -79,4 +101,9 @@ char *valor_en_hash(int clave, hash_t h);
   Devuelve `true' si y sólo si `h' tiene `tamanio' elementos.
   El tiempo de ejecución es O(1).
  */
-bool esta_lleno_hash(hash_t h);
+bool esta_lleno_hash(hash_t h) {
+  bool res = false;
+  if (h.cantAsociaciones == h.capacidad)
+    res = true;
+  return res;
+};
