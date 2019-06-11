@@ -1,14 +1,10 @@
 /* 5223744 - 4937759 */
 
  /* BIBLIOTECAS */
-#include "../include/cadena.h"
 #include "../include/hash.h"
-#include "../include/heap.h"
+#include "../include/cadena.h"
+#include "../include/uso_cadena.h"
 #include "../include/info.h"
-#include "../include/avl.h"
-#include "../include/cola_avls.h"
-#include "../include/pila.h"
-#include "../include/conjunto.h"
 /* BIBLIOTECAS */
 
 /* LIBRERIAS */
@@ -23,7 +19,7 @@
 // Se debe definir en hash.cpp.
 struct rep_hash {
   nat capacidad;
-  cadena_t *hash[Capacidad];
+  cadena_t *hash;
   nat cantAsociaciones;
 };
 // Declaración del tipo `hash_t'.
@@ -34,12 +30,12 @@ typedef rep_hash *hash_t;
  Podrá haber hasta `tamanio' asociaciones.
  */
 hash_t crear_hash(nat tamanio) {
-  rep_hash h = new hash_t;
-  h.capacidad = tamanio - 1;
-  rep_cadena *h.hash = new cadena_t;
-  h.cantAsociaciones = 0;
-  for(i=0; i<=(tamanio - 1); i++)
-    h[i] = NULL;
+  hash_t h = new rep_hash;
+  h->hash = new cadena_t[tamanio];
+  h->capacidad = tamanio;
+  h->cantAsociaciones = 0;
+  for(nat i=0; i<=(tamanio - 1); i++)
+    h->hash[i] = NULL;
   return h;
 };
 
@@ -49,13 +45,14 @@ hash_t crear_hash(nat tamanio) {
   El tiempo de ejecución es O(1).
  */
 void asociar_en_hash(int clave, char *valor, hash_t &h) {
-  nat pos = (abs(clave)%(h.capacidad)); // Posición en la que voy a almacenar la asociación.
+  nat pos = (abs(clave)%(h->capacidad)); // Posición en la que voy a almacenar la asociación.
   info_t info = crear_info(clave, valor);
-  if (h[pos] == NULL) {
-    h[pos] = crear_cadena();
-    h[pos] = insertar_al_final(info, h[pos]);
+  if (h->hash[pos] == NULL) {
+    h->hash[pos] = crear_cadena();
+    h->hash[pos] = insertar_al_final(info, h->hash[pos]);
   } else
-    h[pos] = insertar_al_final(info, h[pos]);
+    h->hash[pos] = insertar_al_final(info, h->hash[pos]);
+  h->cantAsociaciones++;
 };
 
 /*
@@ -75,25 +72,29 @@ void actualizar_hash(int clave, char *valor, hash_t &h) {
   El tiempo de ejecución es O(1) en promedio.
  */
 void eliminar_de_hash(int clave, hash_t &h) {
-  nat pos = (abs(clave) % h.capacidad);
-  localizador_t loc = siguiente_clave(clave, inicio_cadena(h[pos], h[pos]));
-  h[pos] = remover_de_cadena(loc, h[pos]);
+  nat pos = (abs(clave) % h->capacidad);
+  localizador_t loc = siguiente_clave(clave, inicio_cadena(h->hash[pos]), h->hash[pos]);
+  h->hash[pos] = remover_de_cadena(loc, h->hash[pos]);
+  h->cantAsociaciones--;
 };
 
 /*
   Libera la memoria asignada a `h' y todos sus elementos.
  */
 void liberar_hash(hash_t &h) {
-  if (h.cantAsociaciones != 0)
-    pos = 0;
-    while ((pos <=  h.capacidad) && (h.cantAsociaciones != 0)) {
-      if (h[pos] != NULL) {
-        liberar_cadena(h[pos]);
-        h.cantAsociaciones--; // Una asociación menos a borrar.
+  if (h->cantAsociaciones > 0) {
+    nat pos = 0;
+    while ((h->cantAsociaciones > 0) && (pos < h->capacidad)) {
+      if (h->hash[pos] != NULL) {
+        nat Asoc_Borradas = longitud(h->hash[pos]);
+        liberar_cadena(h->hash[pos]);
+        h->cantAsociaciones = h->cantAsociaciones - Asoc_Borradas; // Una asociación menos a borrar.
       }
       pos++;
     }
-    delete(h);
+  }
+  delete [] h->hash;
+  delete(h);
 };
 
 /*
@@ -102,16 +103,13 @@ void liberar_hash(hash_t &h) {
   El tiempo de ejecución es O(1) en promedio.
  */
 bool existe_asociacion(int clave, hash_t h) {
-  nat pos = (abs(clave) % h.capacidad);
+  nat pos = (abs(clave) % h->capacidad);
   bool res;
-  if (h[pos] == NULL)
+  if (h->hash[pos] == NULL)
     res = false;
-  else {
-    if (pertenece(clave, h[pos]))
-      res = true;
-    else
-      res = false;
-  }
+  else
+    res = pertenece(clave, h->hash[pos]);
+  return res;
 };
 
 /*
@@ -120,9 +118,9 @@ bool existe_asociacion(int clave, hash_t h) {
   El tiempo de ejecución es O(1) en promedio.
  */
 char *valor_en_hash(int clave, hash_t h) {
-  nat pos = (abs(clave) % h.capacidad);
-  localizador_t loc = siguiente_clave(clave, inicio_cadena(h[pos], h[pos]));
-  char *frase = frase_info(info_cadena(loc, h[pos]));
+  nat pos = (abs(clave) % h->capacidad);
+  localizador_t loc = siguiente_clave(clave, inicio_cadena(h->hash[pos]), h->hash[pos]);
+  char *frase = frase_info(info_cadena(loc, h->hash[pos]));
   return frase;
 };
 
@@ -132,7 +130,7 @@ char *valor_en_hash(int clave, hash_t h) {
  */
 bool esta_lleno_hash(hash_t h) {
   bool res = false;
-  if (h.cantAsociaciones == h.capacidad)
+  if (h->cantAsociaciones == h->capacidad)
     res = true;
   return res;
 };
