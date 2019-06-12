@@ -37,25 +37,26 @@ static void filtrado_ascendente_rec(heap_t h, nat pos) {
     h->elems[pos] = h->elems[pos/2];
     h->PosValor[numero_info(h->elems[pos])] = pos;
     h->elems[pos/2] = swap;
-    h->PosValor[numero_info(h->elems[pos/2])];
+    h->PosValor[numero_info(h->elems[pos/2])] = (pos/2);
     filtrado_ascendente_rec(h, (pos/2));
   }
 };
 
-static void filtrado_descendente(int *arreglo, int n, nat pos) {
+static void filtrado_descendente(heap_t h, nat n, nat pos) {
   bool salir = false;
-  int swap = arreglo[pos];
+  info_t swap = h->infos[pos];
   while ((!salir) && (2*pos <= n)) {
-    int hijo = 2*pos;
-    if ((hijo + 1 <= n) && (arreglo[hijo + 1] < arreglo[hijo]))
-      hijo = hijo + 1;
-    if (arreglo[hijo] < swap) {
-      arreglo[pos] = arreglo[hijo];
+    nat hijo = 2*pos;
+    if ((hijo + 1 <= n) && (numero_info(h->infos[hijo + 1]) < numero_info(h->infos[hijo])))
+      hijo++;
+    if (numero_info(h->infos[hijo]) < numero_info(swap)) {
+      h->infos[pos] = h->infos[hijo];
       pos = hijo;
     } else
       salir = true;
   }
-  arreglo[pos] = swap;
+  h->infos[pos] = swap;
+  h->PosValor[numero_info(swap)] = pos;
 };
 
 /* FUNCIONES AUXILIARES */
@@ -70,6 +71,9 @@ heap_t crear_heap(nat tamanio, nat max_valor) {
   h->capacidad = tamanio;
   h->cant = 0;
   h->maxValor = max_valor;
+  for(nat i=0; i <= (max_valor + 1); i++)
+    h->PosValor[i] = 0;
+  return h;
 };
 
 /*
@@ -79,10 +83,10 @@ heap_t crear_heap(nat tamanio, nat max_valor) {
   El tiempo de ejecución es O(log tamanio).
  */
 void insertar_en_heap(info_t i, heap_t &h) {
-  h->cant++;
-  h->infos[h->cant] = i;
-  h->PosValor[numero_info(i)] = h->cant;
-  filtrado_ascendente_rec(h, h->cant);
+   h->cant++;
+   h->infos[h->cant] = i;
+   h->PosValor[numero_info(i)] = h->cant;
+   filtrado_ascendente_rec(h, h->cant);
 };
 
 /*
@@ -91,7 +95,9 @@ void insertar_en_heap(info_t i, heap_t &h) {
   No debe quedar memoria inaccesible.
   El tiempo de ejecución es O(log tamanio).
  */
-void reducir(nat v, heap_t &h);
+void reducir(nat v, heap_t &h) {
+
+};
 
 /*
   Elimina de 'h' el elemento de menor valor y libera la memoria que tiene
@@ -101,15 +107,15 @@ void reducir(nat v, heap_t &h);
  */
 void eliminar_menor(heap_t &h) {
   h->cant--;
-  h->PosValor[numero_info(h->infos[0])] = 0;
-  liberar_info(h->infos[0]);
-  filtrado_descendente(h->infos, h->cant, h->cant);
+  h->PosValor[numero_info(h->infos[1])] = 0;
+  liberar_info(h->infos[1]);
+  filtrado_descendente(h, h->cant, 1);
 };
 
 /*  Libera la menoria asignada a `h' y a sus elementos. */
 void liberar_heap(heap_t &h) {
-  delete [] infos;
-  delete [] PosValor;
+  delete [] h->infos;
+  delete [] h->PosValor;
   delete(h);
 };
 
@@ -141,9 +147,10 @@ bool es_lleno_heap(heap_t h) {
  */
 bool hay_valor(nat v, heap_t h) {
   bool res = false;
-  if (h->PosValor[v] == 1)
+  if (h->PosValor[v] != 0)
     res = true;
-}
+  return res;
+};
 
 /*
   Devuelve el elemento de 'h' con menor valor.
@@ -151,7 +158,7 @@ bool hay_valor(nat v, heap_t h) {
   El tiempo de ejecución es O(1).
  */
 info_t menor(heap_t h) {
-  return (h->infos[0]);
+  return (h->infos[1]);
 };
 
 /*
