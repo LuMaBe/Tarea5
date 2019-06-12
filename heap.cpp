@@ -31,12 +31,14 @@ typedef rep_heap *heap_t;
 
 /* FUNCIONES AUXILIARES */
 
-static void filtrado_ascendente_rec(info_t *elems, nat pos) {
-  if ((pos > 1) && (elems[pos/2] > elems[pos])) {
-    info_t swap = elems[pos];
-    elems[pos] = elems[pos/2];
-    elems[pos/2] = swap;
-    filtrado_ascendente_rec(elems, (pos/2));
+static void filtrado_ascendente_rec(heap_t h, nat pos) {
+  if ((pos > 1) && (h->elems[pos/2] > h->elems[pos])) {
+    info_t swap = h->elems[pos];
+    h->elems[pos] = h->elems[pos/2];
+    h->PosValor[numero_info(h->elems[pos])] = pos;
+    h->elems[pos/2] = swap;
+    h->PosValor[numero_info(h->elems[pos/2])];
+    filtrado_ascendente_rec(h, (pos/2));
   }
 };
 
@@ -78,9 +80,9 @@ heap_t crear_heap(nat tamanio, nat max_valor) {
  */
 void insertar_en_heap(info_t i, heap_t &h) {
   h->cant++;
-  h->infos[heap->cant] = i;
-  h->PosValor[numero_info(i)] = 1;
-  filtrado_ascendente_rec(h->infos, h->cant);
+  h->infos[h->cant] = i;
+  h->PosValor[numero_info(i)] = h->cant;
+  filtrado_ascendente_rec(h, h->cant);
 };
 
 /*
