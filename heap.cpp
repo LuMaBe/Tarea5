@@ -21,7 +21,7 @@
 // Se debe definir en heap.cpp
 struct rep_heap {
   info_t *infos;
-  int *PosValor;
+  nat *PosValor;
   nat capacidad;
   nat cant;
   nat maxValor;
@@ -32,12 +32,14 @@ typedef rep_heap *heap_t;
 /* FUNCIONES AUXILIARES */
 
 static void filtrado_ascendente_rec(heap_t h, nat pos) {
-  if ((pos > 1) && (h->elems[pos/2] > h->elems[pos])) {
-    info_t swap = h->elems[pos];
-    h->elems[pos] = h->elems[pos/2];
-    h->PosValor[numero_info(h->elems[pos])] = pos;
-    h->elems[pos/2] = swap;
-    h->PosValor[numero_info(h->elems[pos/2])] = (pos/2);
+  if ((pos > 1) && (numero_info(h->infos[pos/2]) > numero_info(h->infos[pos]))) {
+    info_t swap = copia_info(h->infos[pos]);
+    liberar_info(h->infos[pos]);
+    h->infos[pos] = h->infos[pos/2];//copia_info(h->infos[pos/2]);
+    h->PosValor[numero_info(h->infos[pos])] = pos;
+    //liberar_info(h->infos[pos/2]);
+    h->infos[pos/2] = swap;
+    h->PosValor[numero_info(h->infos[pos/2])] = (pos/2);
     filtrado_ascendente_rec(h, (pos/2));
   }
 };
@@ -51,6 +53,7 @@ static void filtrado_descendente(heap_t h, nat n, nat pos) {
       hijo++;
     if (numero_info(h->infos[hijo]) < numero_info(swap)) {
       h->infos[pos] = h->infos[hijo];
+      h->PosValor[numero_info(h->infos[pos])] = pos;
       pos = hijo;
     } else
       salir = true;
@@ -66,12 +69,12 @@ static void filtrado_descendente(heap_t h, nat n, nat pos) {
  */
 heap_t crear_heap(nat tamanio, nat max_valor) {
   heap_t h = new rep_heap;
-  h->infos = new info_t[tamanio];
-  h->PosValor = new int[max_valor + 1];
+  h->infos = new info_t[tamanio + 1];
+  h->PosValor = new nat[max_valor + 1];
   h->capacidad = tamanio;
   h->cant = 0;
   h->maxValor = max_valor;
-  for(nat i=0; i <= (max_valor + 1); i++)
+  for(nat i=0; i <= (max_valor); i++)
     h->PosValor[i] = 0;
   return h;
 };
@@ -84,7 +87,7 @@ heap_t crear_heap(nat tamanio, nat max_valor) {
  */
 void insertar_en_heap(info_t i, heap_t &h) {
    h->cant++;
-   h->infos[h->cant] = i;
+   h->infos[h->cant] = copia_info(i);
    h->PosValor[numero_info(i)] = h->cant;
    filtrado_ascendente_rec(h, h->cant);
 };
@@ -96,7 +99,14 @@ void insertar_en_heap(info_t i, heap_t &h) {
   El tiempo de ejecución es O(log tamanio).
  */
 void reducir(nat v, heap_t &h) {
-
+  nat pos = h->PosValor[v];
+  int vReducido = (numero_info(h->infos[pos]))/2;
+  char *Frase = new char[strlen(frase_info(h->infos[pos])) + 1];
+  strcpy(Frase, frase_info(h->infos[pos]));
+  info_t info = crear_info(vReducido, Frase);
+  h->infos[pos] = info;
+  liberar_info(h->infos[pos]);
+  filtrado_descendente(h, h->cant, pos);
 };
 
 /*
@@ -106,14 +116,24 @@ void reducir(nat v, heap_t &h) {
   El tiempo de ejecución es O(log tamanio).
  */
 void eliminar_menor(heap_t &h) {
+  if (h->cant > 1) {
+    h->PosValor[numero_info(h->infos[1])] = 0;
+    liberar_info(h->infos[1]);
+    filtrado_descendente(h, 1, h->cant);
+  } else {
+    h->PosValor[numero_info(h->infos[1])] = 0;
+    liberar_info(h->infos[1]);
+  }
   h->cant--;
-  h->PosValor[numero_info(h->infos[1])] = 0;
-  liberar_info(h->infos[1]);
-  filtrado_descendente(h, h->cant, 1);
 };
 
 /*  Libera la menoria asignada a `h' y a sus elementos. */
 void liberar_heap(heap_t &h) {
+  while (h->cant > 0) {
+    nat cant = h->cant;
+    liberar_info(h->infos[cant]);
+    h->cant--;
+  }
   delete [] h->infos;
   delete [] h->PosValor;
   delete(h);
@@ -124,10 +144,7 @@ void liberar_heap(heap_t &h) {
   El tiempo de ejecución es O(1).
  */
 bool es_vacio_heap(heap_t h) {
-  bool res = false;
-  if (h->cant == 0)
-    res = true;
-  return res;
+  return (h->cant == 0);
 };
 
 /*
@@ -135,10 +152,7 @@ bool es_vacio_heap(heap_t h) {
   El tiempo de ejecución es O(1).
  */
 bool es_lleno_heap(heap_t h) {
-  bool res = false;
-  if (h->cant == h->capacidad)
-    res = true;
-  return res;
+  return (h->cant == h->capacidad);
 };
 
 /*
@@ -147,7 +161,7 @@ bool es_lleno_heap(heap_t h) {
  */
 bool hay_valor(nat v, heap_t h) {
   bool res = false;
-  if (h->PosValor[v] != 0)
+  if ((v <= h->maxValor) && (h->PosValor[v] != 0))
     res = true;
   return res;
 };
