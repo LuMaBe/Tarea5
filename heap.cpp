@@ -44,22 +44,41 @@ static void filtrado_ascendente_rec(heap_t h, nat pos) {
   }
 };
 
-static void filtrado_descendente(heap_t h, nat n, nat pos) {
-  bool salir = false;
-  info_t swap = h->infos[pos];
-  while ((!salir) && (2*pos <= n)) {
-    nat hijo = 2*pos;
-    if ((hijo + 1 <= n) && (numero_info(h->infos[hijo + 1]) < numero_info(h->infos[hijo])))
-      hijo++;
-    if (numero_info(h->infos[hijo]) < numero_info(swap)) {
-      h->infos[pos] = h->infos[hijo];
-      h->PosValor[numero_info(h->infos[pos])] = pos;
-      pos = hijo;
-    } else
-      salir = true;
-  }
-  h->infos[pos] = swap;
-  h->PosValor[numero_info(swap)] = pos;
+static void filtrado_descendente(heap_t &h) {
+    bool salir = false;
+    info_t swap = h->infos[h->cant];
+    nat hijo = 2;
+    nat lugar = 1; 
+    while ( (!salir) && ((hijo <= h->cant) && ((hijo +1) <= h->cant)) ) {
+    
+        if( (numero_info(swap) < numero_info(h->infos[hijo])) && (numero_info(swap) <  numero_info(h->infos[hijo + 1]))){
+            info_t inf = copia_info(swap);
+            h->infos[lugar] = inf;
+            h->PosValor[numero_info(swap)] = lugar;
+            liberar_info(swap);
+            salir = true;
+        } else {
+            if( (numero_info(h->infos[hijo])) < (numero_info(h->infos[hijo + 1])) ){
+                h->infos[lugar] = h->infos[hijo];
+                h->PosValor[numero_info(h->infos[lugar])] = lugar;  
+                lugar = hijo;
+                hijo = lugar * 2;
+            } else {
+                h->infos[lugar] = h->infos[hijo + 1];
+                h->PosValor[numero_info(h->infos[lugar])] = lugar;  
+                lugar = hijo + 1;
+                hijo = lugar * 2;
+                }
+            }
+    }
+    if( (!salir) && (hijo >= h->cant)){
+        info_t inf = copia_info(swap);
+        h->infos[lugar] = inf;
+        h->PosValor[numero_info(swap)] = lugar;
+        liberar_info(swap);
+    }
+    
+  h->cant --;
 };
 
 /* FUNCIONES AUXILIARES */
