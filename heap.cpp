@@ -43,18 +43,18 @@ static void filtrado_ascendente_rec(heap_t h, nat pos) {
   }
 };
 
-static void filtrado_descendente(heap_t &h, nat pos){
-    while( (pos != 1) && (numero_info(h->infos[pos]) < numero_info(h->infos[pos/2])) ){
-        info_t copinf = copia_info(h->infos[pos/2]);
-        liberar_info(h->infos[pos/2]);
-        info_t copinf2 = copia_info(h->infos[pos]);
-        h->infos[pos/2] = copinf2;
-        liberar_info(h->infos[pos]);
-        h->infos[pos] = copinf;
-        h->PosValor[numero_info(h->infos[pos/2])] = pos/2;
-        h->PosValor[numero_info(h->infos[pos])] = pos;
-        pos = pos/2;
-    }
+static void filtrado_descendente(heap_t &h, nat pos) {
+  while( (pos != 1) && (numero_info(h->infos[pos]) < numero_info(h->infos[pos/2])) ) {
+    info_t copinf = copia_info(h->infos[pos/2]);
+    liberar_info(h->infos[pos/2]);
+    info_t copinf2 = copia_info(h->infos[pos]);
+    h->infos[pos/2] = copinf2;
+    liberar_info(h->infos[pos]);
+    h->infos[pos] = copinf;
+    h->PosValor[numero_info(h->infos[pos/2])] = pos/2;
+    h->PosValor[numero_info(h->infos[pos])] = pos;
+    pos = pos/2;
+  }
 }
 
 static void filtrado_descendente_menor(heap_t &h) {
@@ -99,8 +99,8 @@ static void filtrado_descendente_menor(heap_t &h) {
 heap_t crear_heap(nat tamanio, nat max_valor) {
   heap_t h = new rep_heap;
   h->infos = new info_t[tamanio + 1];
-  for(nat i = 0; i<=(tamanio); i++)
-    h->infos[i] = NULL;
+  //for(nat i = 0; i<=(tamanio); i++)
+  //  h->infos[i] = NULL;
   h->PosValor = new nat[max_valor + 1];
   h->capacidad = tamanio;
   h->cant = 0;
@@ -129,7 +129,7 @@ void insertar_en_heap(info_t i, heap_t &h) {
   No debe quedar memoria inaccesible.
   El tiempo de ejecución es O(log tamanio).
  */
-void reducir(nat v, heap_t &h) {
+ void reducir(nat v, heap_t &h) {
     nat pos = h->PosValor[v];
     int vReducido = v/2;
     char *Frase = new char[strlen(frase_info(h->infos[pos])) + 1];
@@ -138,11 +138,9 @@ void reducir(nat v, heap_t &h) {
     info_t info = crear_info(vReducido, Frase);
     h->infos[pos] = info;
     h->PosValor[v] = 0;
-    
-    if(h->cant != 1)
-        filtrado_descendente(h, pos);
-};
-
+    if(h->cant > 1)
+      filtrado_descendente(h, pos);
+ };
 /*
   Elimina de 'h' el elemento de menor valor y libera la memoria que tiene
   asignada.
