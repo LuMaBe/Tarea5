@@ -43,23 +43,19 @@ static void filtrado_ascendente_rec(heap_t h, nat pos) {
   }
 };
 
-static void filtrado_descendente(heap_t h, nat n, nat pos) {
-  bool salir = false;
-  info_t swap = h->infos[pos];
-  while ((!salir) && (2*pos <= n)) {
-    nat hijo = 2*pos;
-    if ((hijo + 1 <= n) && (numero_info(h->infos[hijo + 1]) < numero_info(h->infos[hijo])))
-      hijo++;
-    if (numero_info(h->infos[hijo]) < numero_info(swap)) {
-      h->infos[pos] = h->infos[hijo];
-      h->PosValor[numero_info(h->infos[pos])] = pos;
-      pos = hijo;
-    } else
-      salir = true;
-  }
-  h->infos[pos] = swap;
-  h->PosValor[numero_info(swap)] = pos;
-};
+static void filtrado_descendente(heap_t &h, nat pos){
+    while( (pos != 1) && (numero_info(h->infos[pos]) < numero_info(h->infos[pos/2])) ){
+        info_t copinf = copia_info(h->infos[pos/2]);
+        liberar_info(h->infos[pos/2]);
+        info_t copinf2 = copia_info(h->infos[pos]);
+        h->infos[pos/2] = copinf2;
+        liberar_info(h->infos[pos]);
+        h->infos[pos] = copinf;
+        h->PosValor[numero_info(h->infos[pos/2])] = pos/2;
+        h->PosValor[numero_info(h->infos[pos])] = pos;
+        pos = pos/2;
+    }
+}
 
 static void filtrado_descendente_menor(heap_t &h) {
     bool salir = false;
@@ -134,14 +130,17 @@ void insertar_en_heap(info_t i, heap_t &h) {
   El tiempo de ejecución es O(log tamanio).
  */
 void reducir(nat v, heap_t &h) {
-  nat pos = h->PosValor[v];
-  int vReducido = (numero_info(h->infos[pos]))/2;
-  char *Frase = new char[strlen(frase_info(h->infos[pos])) + 1];
-  strcpy(Frase, frase_info(h->infos[pos]));
-  liberar_info(h->infos[pos]);
-  info_t info = crear_info(vReducido, Frase);
-  h->infos[pos] = info;
-  filtrado_descendente(h, h->cant, pos);
+    nat pos = h->PosValor[v];
+    int vReducido = v/2;
+    char *Frase = new char[strlen(frase_info(h->infos[pos])) + 1];
+    strcpy(Frase, frase_info(h->infos[pos]));
+    liberar_info(h->infos[pos]);
+    info_t info = crear_info(vReducido, Frase);
+    h->infos[pos] = info;
+    h->PosValor[v] = 0;
+    
+    if(h->cant != 1)
+        filtrado_descendente(h, pos);
 };
 
 /*
