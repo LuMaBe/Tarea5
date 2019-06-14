@@ -61,8 +61,9 @@ void asociar_en_hash(int clave, char *valor, hash_t &h) {
   El tiempo de ejecución es O(1).
  */
 void actualizar_hash(int clave, char *valor, hash_t &h) {
-  eliminar_de_hash(clave, h);
-  asociar_en_hash(clave, valor, h);
+  nat pos = (abs(clave)%(h->capacidad));
+  info_t info = crear_info(clave, valor);
+  h->hash[pos] = insertar_antes(info, inicio_cadena(h->hash[pos]), h->hash[pos]);
 };
 
 /*
@@ -73,8 +74,14 @@ void actualizar_hash(int clave, char *valor, hash_t &h) {
  */
 void eliminar_de_hash(int clave, hash_t &h) {
   nat pos = (abs(clave) % h->capacidad);
-  localizador_t loc = siguiente_clave(clave, inicio_cadena(h->hash[pos]), h->hash[pos]);
-  h->hash[pos] = remover_de_cadena(loc, h->hash[pos]);
+  bool salir = false;
+  while (!salir) {
+    localizador_t loc = siguiente_clave(clave, inicio_cadena(h->hash[pos]), h->hash[pos]);
+    if (es_localizador(loc))
+      h->hash[pos] = remover_de_cadena(loc, h->hash[pos]);
+    else
+      salir = true;
+  }
   h->cantAsociaciones--;
 };
 
@@ -84,12 +91,9 @@ void eliminar_de_hash(int clave, hash_t &h) {
 void liberar_hash(hash_t &h) {
   if (h->cantAsociaciones > 0) {
     nat pos = 0;
-    while ((h->cantAsociaciones > 0) && (pos < h->capacidad)) {
-      if (h->hash[pos] != NULL) {
-        nat Asoc_Borradas = longitud(h->hash[pos]);
+    while (pos < (h->capacidad)) {
+      if (h->hash[pos] != NULL)
         liberar_cadena(h->hash[pos]);
-        h->cantAsociaciones = h->cantAsociaciones - Asoc_Borradas; // Una asociación menos a borrar.
-      }
       pos++;
     }
   }
