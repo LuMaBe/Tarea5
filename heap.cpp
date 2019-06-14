@@ -55,7 +55,7 @@ static void filtrado_descendente(heap_t &h, nat pos) {
     h->PosValor[numero_info(h->infos[pos])] = pos;
     pos = pos/2;
   }
-}
+};
 
 static void filtrado_descendente_menor(heap_t &h) {
     bool salir = false;
@@ -64,10 +64,9 @@ static void filtrado_descendente_menor(heap_t &h) {
     nat lugar = 1;
     while ( (!salir) && ((hijo <= h->cant) && ((hijo +1) <= h->cant)) ) {
       if( (numero_info(swap) < numero_info(h->infos[hijo])) && (numero_info(swap) <  numero_info(h->infos[hijo + 1]))) {
-          info_t inf = copia_info(swap);
+          info_t inf = swap;
           h->infos[lugar] = inf;
           h->PosValor[numero_info(swap)] = lugar;
-          liberar_info(swap);
           salir = true;
       } else {
           if( (numero_info(h->infos[hijo])) < (numero_info(h->infos[hijo + 1])) ) {
@@ -83,11 +82,15 @@ static void filtrado_descendente_menor(heap_t &h) {
           }
       }
   }
-  if( (!salir) && (hijo >= h->cant) ) {
-      info_t inf = copia_info(swap);
+  if( (!salir) && (hijo >= h->cant) && (lugar <= h->maxValor) ) {
+      info_t inf = swap;
       h->infos[lugar] = inf;
       h->PosValor[numero_info(swap)] = lugar;
-      liberar_info(swap);
+  } else if((!salir) && (hijo >= h->cant)) {
+    info_t inf = swap;
+    h->infos[lugar/2] = inf;
+    h->PosValor[numero_info(swap)] = lugar/2;
+    liberar_info(swap);
   }
 };
 
@@ -99,8 +102,6 @@ static void filtrado_descendente_menor(heap_t &h) {
 heap_t crear_heap(nat tamanio, nat max_valor) {
   heap_t h = new rep_heap;
   h->infos = new info_t[tamanio + 1];
-  //for(nat i = 0; i<=(tamanio); i++)
-  //  h->infos[i] = NULL;
   h->PosValor = new nat[max_valor + 1];
   h->capacidad = tamanio;
   h->cant = 0;
@@ -141,6 +142,7 @@ void insertar_en_heap(info_t i, heap_t &h) {
     if(h->cant > 1)
       filtrado_descendente(h, pos);
  };
+
 /*
   Elimina de 'h' el elemento de menor valor y libera la memoria que tiene
   asignada.
